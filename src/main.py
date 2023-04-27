@@ -1,3 +1,4 @@
+import uvicorn
 from fastapi import FastAPI
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
@@ -6,8 +7,6 @@ from redis import asyncio as aioredis
 from commands.controller import router as commands_router
 
 app = FastAPI()
-
-
 app.include_router(commands_router)
 
 
@@ -17,3 +16,6 @@ async def startup():
         'redis://localhost', encoding='utf8', decode_responses=True
     )
     FastAPICache.init(RedisBackend(redis), prefix='fastapi-cache')
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
