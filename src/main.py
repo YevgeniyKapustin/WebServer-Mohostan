@@ -4,10 +4,10 @@ from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 from redis import asyncio as aioredis
 
-from commands.controller import router as commands_router
+from commands_types.controller import router as types_router
 
 app = FastAPI()
-app.include_router(commands_router)
+app.include_router(types_router)
 
 
 @app.on_event('startup')
