@@ -1,20 +1,16 @@
 from fastapi import APIRouter
 from fastapi_cache.decorator import cache
-from pydantic import BaseModel
 from starlette.responses import JSONResponse
 from starlette.status import HTTP_404_NOT_FOUND
 
-from commands_types.models import Type
-from database import session
+from src.commands_types.models import Type
+from src.commands_types.schemas import TypeScheme
+from src.database import session
 
 router = APIRouter(
     prefix='/api/v1/types',
     tags=['Типы команд'],
 )
-
-
-class TypeBody(BaseModel):
-    name: str
 
 
 @router.get("/")
@@ -49,7 +45,7 @@ async def get_type(name: str):
 
 
 @router.post("/")
-async def add_type(command_type: TypeBody):
+async def add_type(command_type: TypeScheme):
     session.add(Type(type=command_type.name))
     session.commit()
 
@@ -62,7 +58,7 @@ async def add_type(command_type: TypeBody):
 
 
 @router.put("/")
-async def update_type(command_type: TypeBody):
+async def update_type(command_type: TypeScheme):
     session.add(Type(type=command_type.name))
     session.commit()
 
@@ -75,7 +71,7 @@ async def update_type(command_type: TypeBody):
 
 
 @router.delete("/")
-async def delete_type(command_type: TypeBody):
+async def delete_type(command_type: TypeScheme):
     stmt = session.query(Type).where(Type.type == command_type.name)
 
     if stmt.first():
