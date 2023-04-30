@@ -6,7 +6,9 @@ from redis import asyncio as aioredis
 
 from commands_types.router import router as types_router
 
-app = FastAPI()
+app = FastAPI(
+    title='Ванесса'
+)
 app.include_router(types_router)
 
 
