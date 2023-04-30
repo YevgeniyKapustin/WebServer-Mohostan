@@ -11,7 +11,7 @@ sys.path.append(os.path.join(sys.path[0], 'src'))
 
 from src.config import DB_URL
 from src.database import Base
-
+from src.commands_types import models
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
