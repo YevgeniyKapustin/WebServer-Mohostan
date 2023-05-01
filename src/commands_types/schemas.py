@@ -1,5 +1,5 @@
 from pydantic import BaseModel
 
 
-class TypeScheme(BaseModel):
+class Type(BaseModel):
     name: str
