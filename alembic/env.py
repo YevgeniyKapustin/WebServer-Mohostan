@@ -8,7 +8,7 @@ from alembic import context
 
 Path(sys.path[0]).joinpath('src')
 
-from src.config import DB_URL
+from src.config import POSTGRES_URL
 from src.database import Base
 
 from src.commands_types import models
@@ -46,7 +46,7 @@ def run_migrations_offline():
     script output.
 
     """
-    url = DB_URL
+    url = POSTGRES_URL
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -66,7 +66,7 @@ def run_migrations_online():
 
     """
     configuration = config.get_section(config.config_ini_section)
-    configuration['sqlalchemy.url'] = DB_URL
+    configuration['sqlalchemy.url'] = POSTGRES_URL
     connectable = engine_from_config(
         configuration,
         prefix="sqlalchemy.",

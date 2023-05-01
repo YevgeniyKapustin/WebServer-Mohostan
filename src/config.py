@@ -3,11 +3,12 @@ from os import environ
 
 load_dotenv()
 
-DB_USER: str = environ.get('DB_USER')
-DB_PASS: str = environ.get('DB_PASS')
-DB_HOST: str = environ.get('DB_HOST')
-DB_PORT: str = environ.get('DB_PORT')
-DB_NAME: str = environ.get('DB_NAME')
-DB_URL: str = (
-    f'postgresql://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}'
+POSTGRES_USER: str = environ.get('POSTGRES_USER')
+POSTGRES_PASSWORD: str = environ.get('POSTGRES_PASSWORD')
+POSTGRES_HOST: str = environ.get('POSTGRES_HOST')
+POSTGRES_PORT: str = environ.get('POSTGRES_PORT')
+POSTGRES_DB: str = environ.get('POSTGRES_DB')
+POSTGRES_URL: str = (
+    f'postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@'
+    f'{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}'
 )
