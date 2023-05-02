@@ -6,10 +6,11 @@ from starlette.status import (
 )
 
 from src.commands_types.models import Type as TypeModel
-from src.commands_types.schemas import Type as TypeScheme
+from src.commands_types.schemas import TypeScheme
 from src.commands_types.services import get_type_by_name, create_type_by_name
 from src.database import session
-from src.schemas.response import OkResponse, CreateResponse
+from src.responses.json import OkJSONResponse, NotFoundJSONResponse
+from src.responses.schemas import CreateScheme, NotFoundScheme, OkScheme
 
 router = APIRouter(
     prefix='/api/v1/types',
@@ -28,24 +29,41 @@ async def get_all_types():
     }
 
 
-@router.get("/{name}")
+@router.get(
+    "/{name}",
+    name="Возвращает информацию о типе команды",
+    status_code=HTTP_200_OK,
+    response_model=TypeScheme,
+    responses={
+        HTTP_200_OK: {
+            'model': TypeScheme,
+            'description': 'Тип получен',
+        },
+        HTTP_404_NOT_FOUND: {
+            'model': NotFoundScheme,
+            'description': 'Типа не существует',
+        }
+    }
+)
 @cache(expire=60)
 async def get_type(name: str):
-    query = session.query(TypeModel).where(TypeModel.name == name)
+    type_by_name = await get_type_by_name(name)
 
-    if query.first():
+    if type_by_name:
 
-        return {
-            'type': query.first(),
-            'message': 'success'
-        }
+        obj = TypeScheme(
+            id=type_by_name.id,
+            name=type_by_name.name
+        )
+
+        return JSONResponse(
+            content=obj.dict(),
+            status_code=HTTP_200_OK,
+        )
 
     else:
 
-        return JSONResponse(
-            content={"message": "Resource Not Found"},
-            status_code=HTTP_404_NOT_FOUND
-        )
+        return NotFoundJSONResponse
 
 
 @router.post(
