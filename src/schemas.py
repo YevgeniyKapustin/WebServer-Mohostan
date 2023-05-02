@@ -14,6 +14,12 @@ class CreateScheme(BaseModel):
     description: str = 'Создано'
 
 
+class NoContentScheme(BaseModel):
+    """Схема 204 NoContent."""
+    message: str = 'NoContent'
+    description: str = 'Объект остался прежним'
+
+
 class NotFoundScheme(BaseModel):
     """Схема 404 NotFound."""
     message: str = 'NotFound'
