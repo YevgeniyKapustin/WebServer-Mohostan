@@ -5,7 +5,7 @@ from starlette.status import (
     HTTP_422_UNPROCESSABLE_ENTITY
 )
 
-from src.responses.schemas import (
+from src.schemas import (
     CreateScheme, NotFoundScheme, UnpassableEntityScheme, OkScheme
 )
 
