@@ -1,9 +1,11 @@
 from pydantic import BaseModel
 
 
-class TypeWithoutIDScheme(BaseModel):
+class TypeScheme(BaseModel):
+    id: int
     name: str
 
 
-class TypeScheme(TypeWithoutIDScheme):
-    id: int
+class NewTypeScheme(BaseModel):
+    current_name: str
+    new_name: str
