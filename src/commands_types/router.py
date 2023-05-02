@@ -6,10 +6,15 @@ from starlette.status import (
 )
 
 from src.commands_types.models import Type as TypeModel
-from src.commands_types.schemas import TypeScheme
-from src.commands_types.services import get_type_by_name, create_type_by_name
+from src.commands_types.schemas import TypeScheme, NewTypeScheme
+from src.commands_types.services import (
+    get_type_by_name, add_type_by_name, edit_type_name
+)
 from src.database import session
-from src.json_responses import OkJSONResponse, NotFoundJSONResponse
+from src.json_responses import (
+    OkJSONResponse, NotFoundJSONResponse, NoContentJSONResponse,
+    CreateJSONResponse
+)
 from src.schemas import CreateScheme, NotFoundScheme, OkScheme
 
 router = APIRouter(
@@ -76,26 +81,50 @@ async def get_type(name: str):
     }
 )
 async def create_type(command_type: TypeScheme) -> CreateScheme():
-
     if await get_type_by_name(command_type.name):
+
         return OkJSONResponse
 
     else:
-        await create_type_by_name(command_type.name)
-        return CreateScheme
+        await add_type_by_name(command_type.name)
+
+        return CreateJSONResponse
 
 
-@router.put("/")
-async def update_type(command_type: TypeScheme):
-    session.add(TypeModel(type=command_type.name))
-    session.commit()
-
-    stmt = session.query(TypeModel).where(TypeModel.type == command_type.name)
-
-    return {
-        'type': stmt.first(),
-        'message': 'success'
+@router.put(
+    "/",
+    name="Изменяет имя типа команды",
+    status_code=HTTP_200_OK,
+    response_model=TypeScheme,
+    responses={
+        HTTP_200_OK: {
+            'model': OkScheme,
+            'description': 'Тип изменен',
+        },
+        HTTP_201_CREATED: {
+            'model': CreateScheme,
+            'description': 'Тип создан',
+        },
     }
+)
+async def update_type(command_type: NewTypeScheme):
+    original_type = await get_type_by_name(command_type.current_name)
+    new_type = await get_type_by_name(command_type.new_name)
+
+    if original_type and not new_type:
+
+        if original_type != new_type:
+
+            await edit_type_name(original_type, command_type.new_name)
+            return OkJSONResponse
+
+        else:
+
+            await add_type_by_name(command_type.new_name)
+            return CreateJSONResponse
+
+    else:
+        return NoContentJSONResponse
 
 
 @router.delete("/")
