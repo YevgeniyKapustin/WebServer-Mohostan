@@ -9,8 +9,8 @@ from src.commands_types.models import Type as TypeModel
 from src.commands_types.schemas import TypeScheme
 from src.commands_types.services import get_type_by_name, create_type_by_name
 from src.database import session
-from src.responses.json import OkJSONResponse, NotFoundJSONResponse
-from src.responses.schemas import CreateScheme, NotFoundScheme, OkScheme
+from src.json_responses import OkJSONResponse, NotFoundJSONResponse
+from src.schemas import CreateScheme, NotFoundScheme, OkScheme
 
 router = APIRouter(
     prefix='/api/v1/types',
