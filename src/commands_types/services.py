@@ -1,16 +1,16 @@
 from src.database import session
-from src.commands_types.models import Type as TypeModel
+from src.commands_types.models import Type
 
 
-async def get_type_by_name(name: str):
+async def get_type_by_name(name: str) -> Type:
     return (
-        session.query(TypeModel).where(
-            TypeModel.name == name
+        session.query(Type).where(
+            Type.name == name
         ).first()
     )
 
 
-async def create_type_by_name(name: str):
-    session.add(TypeModel(name=name))
+async def create_type_by_name(name: str) -> bool:
+    session.add(Type(name=name))
     session.commit()
     return True
