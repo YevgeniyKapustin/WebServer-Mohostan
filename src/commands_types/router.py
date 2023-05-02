@@ -68,38 +68,32 @@ async def get_type(name: str):
 
 @router.post(
     '/',
-    name="Создать тип команды",
+    name="Создает тип команды",
     description='''
     Создает тип для команд, вы сможете самостоятельно обрабатывать команды 
     этого типа уже на своем клиенте, тут они только создаются и хранятся.
     ''',
-    response_model=CreateResponse,
     status_code=HTTP_201_CREATED,
+    response_model=CreateScheme,
     responses={
         HTTP_200_OK: {
-            'model': OkResponse,
-            'description': 'Объект уже существует',
+            'model': OkScheme,
+            'description': 'Тип уже существует',
         },
         HTTP_201_CREATED: {
-            'model': CreateResponse,
-            'description': 'Объект создан',
-        },
+            'model': CreateScheme,
+            'description': 'Тип создан',
+        }
     }
 )
-async def create_type(command_type: TypeScheme) -> CreateResponse():
+async def create_type(command_type: TypeScheme) -> CreateScheme():
 
     if await get_type_by_name(command_type.name):
-        return JSONResponse(
-            content=OkResponse().dict(),
-            status_code=HTTP_200_OK,
-        )
+        return OkJSONResponse
 
     else:
         await create_type_by_name(command_type.name)
-        return JSONResponse(
-            content=CreateResponse().dict(),
-            status_code=HTTP_201_CREATED,
-        )
+        return CreateScheme
 
 
 @router.put("/")
