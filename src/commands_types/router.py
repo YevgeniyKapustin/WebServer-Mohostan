@@ -18,17 +18,6 @@ router = APIRouter(
 )
 
 
-@router.get("/")
-@cache(expire=60)
-async def get_all_types():
-    query = session.query(TypeModel)
-
-    return {
-        'types': query.all(),
-        'message': 'success'
-    }
-
-
 @router.get(
     "/{name}",
     name="Возвращает информацию о типе команды",
