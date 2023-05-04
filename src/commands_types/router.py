@@ -5,12 +5,8 @@ from starlette.status import (
     HTTP_404_NOT_FOUND, HTTP_201_CREATED, HTTP_200_OK
 )
 
-from src.commands_types.models import Type as TypeModel
-from src.commands_types.schemas import TypeScheme, NewTypeScheme
-from src.commands_types.services import (
-    get_type_by_name, add_type_by_name, edit_type_name
-)
-from src.database import session
+from src.commands_types.schemas import TypeScheme
+from src.commands_types.services import TypeCRUD
 from src.json_responses import (
     OkJSONResponse, NotFoundJSONResponse, NoContentJSONResponse,
     CreateJSONResponse
@@ -41,22 +37,19 @@ router = APIRouter(
 )
 @cache(expire=60)
 async def get_type(name: str) -> JSONResponse:
-    type_by_name = await get_type_by_name(name)
+    type_by_name = await TypeCRUD(name).read()
 
     if type_by_name:
-
         obj = TypeScheme(
             id=type_by_name.id,
             name=type_by_name.name
         )
-
         return JSONResponse(
             content=obj.dict(),
             status_code=HTTP_200_OK,
         )
 
     else:
-
         return NotFoundJSONResponse
 
 
@@ -81,17 +74,16 @@ async def get_type(name: str) -> JSONResponse:
     }
 )
 async def create_type(command_type: TypeScheme) -> JSONResponse:
-    if await get_type_by_name(command_type.name):
+    if await TypeCRUD(command_type.name).read():
         return OkJSONResponse
 
     else:
-        await add_type_by_name(command_type.name)
-
+        await TypeCRUD(command_type.name).create()
         return CreateJSONResponse
 
 
 @router.put(
-    "/",
+    "/{name}",
     name="Изменяет имя типа команды",
     status_code=HTTP_200_OK,
     response_model=TypeScheme,
@@ -106,40 +98,46 @@ async def create_type(command_type: TypeScheme) -> JSONResponse:
         },
     }
 )
-async def update_type(command_type: NewTypeScheme) -> JSONResponse:
-    original_type = await get_type_by_name(command_type.current_name)
-    new_type = await get_type_by_name(command_type.new_name)
+async def update_type(name: str, new_type: TypeScheme) -> JSONResponse:
+    original_obj = TypeCRUD(name)
+    new_obj = TypeCRUD(new_type.name)
 
-    if original_type and not new_type:
+    if await original_obj.read() and not await new_obj.read():
 
-        if original_type != new_type:
-
-            await edit_type_name(original_type, command_type.new_name)
+        if await original_obj.read() != await new_obj.read():
+            await original_obj.update(new_type.name)
             return OkJSONResponse
 
         else:
-
-            await add_type_by_name(command_type.new_name)
+            await original_obj.create()
             return CreateJSONResponse
 
     else:
         return NoContentJSONResponse
 
 
-@router.delete("/")
-async def delete_type(command_type: TypeScheme):
-    stmt = session.query(TypeModel).where(TypeModel.name == command_type.name)
-    if stmt.first():
-        session.delete(stmt.first())
-        session.commit()
+@router.delete(
+    "/",
+    name="Удалить тип команды",
+    status_code=HTTP_200_OK,
+    response_model=TypeScheme,
+    responses={
+        HTTP_200_OK: {
+            'model': OkScheme,
+            'description': 'Тип удален',
+        },
+        HTTP_404_NOT_FOUND: {
+            'model': NotFoundScheme,
+            'description': 'Типа не существует',
+        },
+    }
+)
+async def delete_type(command_type: TypeScheme) -> JSONResponse:
+    obj = TypeCRUD(command_type.name)
 
-        return {
-            'message': 'success'
-        }
+    if await obj.read():
+        await obj.delete()
+        return OkJSONResponse
 
     else:
-
-        return JSONResponse(
-            content={"message": "Resource Not Found"},
-            status_code=HTTP_404_NOT_FOUND
-        )
+        return NotFoundJSONResponse
