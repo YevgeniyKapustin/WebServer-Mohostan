@@ -2,21 +2,37 @@ from src.database import session
 from src.commands_types.models import Type
 
 
-async def get_type_by_name(name: str) -> Type:
-    return (
-        session.query(Type).
-        where(Type.name == name).
-        first()
-    )
+class TypeCRUD(object):
+    """Класс описывающий возможное поведение типов сообщений."""
+    __name: str
 
+    def __init__(self, name: str):
+        self.__name = name
 
-async def add_type_by_name(name: str) -> bool:
-    session.add(Type(name=name))
-    session.commit()
-    return True
+    async def create(self) -> bool:
+        """Создание объекта в базе данных"""
+        session.add(Type(name=self.__name))
+        session.commit()
+        return True
 
+    async def read(self) -> Type:
+        """Чтение объекта из базы данных"""
+        a = (
+            session.query(Type).
+            where(Type.name == self.__name).
+            first()
+        )
+        return a
 
-async def edit_type_name(original_type: Type, new_name: str) -> bool:
-    original_type.name = new_name
-    session.commit()
-    return True
+    async def update(self, new_name: str) -> bool:
+        """Обновление объекта в базы данных"""
+        self.__name = new_name
+        session.add(Type(name=self.__name))
+        session.commit()
+        return True
+
+    async def delete(self) -> bool:
+        """Удаление объекта из базы данных"""
+        session.delete(await self.read())
+        session.commit()
+        return True
