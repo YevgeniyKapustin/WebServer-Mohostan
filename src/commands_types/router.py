@@ -40,7 +40,7 @@ router = APIRouter(
     }
 )
 @cache(expire=60)
-async def get_type(name: str):
+async def get_type(name: str) -> JSONResponse:
     type_by_name = await get_type_by_name(name)
 
     if type_by_name:
@@ -80,9 +80,8 @@ async def get_type(name: str):
         }
     }
 )
-async def create_type(command_type: TypeScheme) -> CreateScheme():
+async def create_type(command_type: TypeScheme) -> JSONResponse:
     if await get_type_by_name(command_type.name):
-
         return OkJSONResponse
 
     else:
@@ -107,7 +106,7 @@ async def create_type(command_type: TypeScheme) -> CreateScheme():
         },
     }
 )
-async def update_type(command_type: NewTypeScheme):
+async def update_type(command_type: NewTypeScheme) -> JSONResponse:
     original_type = await get_type_by_name(command_type.current_name)
     new_type = await get_type_by_name(command_type.new_name)
 
