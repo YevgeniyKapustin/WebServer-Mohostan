@@ -1,3 +1,4 @@
+"""Модуль для сбора переменных окружения"""
 from dotenv import load_dotenv
 from os import environ
 

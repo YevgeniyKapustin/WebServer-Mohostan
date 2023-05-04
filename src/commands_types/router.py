@@ -15,7 +15,7 @@ from src.schemas import CreateScheme, NotFoundScheme, OkScheme
 
 router = APIRouter(
     prefix='/api/v1/types',
-    tags=['Типы команд'],
+    tags=['Команды / Типы'],
 )
 
 
@@ -118,7 +118,7 @@ async def update_type(name: str, new_type: TypeScheme) -> JSONResponse:
 
 @router.delete(
     "/",
-    name="Удалить тип команды",
+    name="Удаляет тип команды",
     status_code=HTTP_200_OK,
     response_model=TypeScheme,
     responses={

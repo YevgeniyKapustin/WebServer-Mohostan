@@ -7,15 +7,9 @@ from redis import asyncio as aioredis
 from src.commands_types.router import router as types_router
 
 app = FastAPI(
-    title='Ванесса',
+    title='Мохостан.Нексус',
     version='1.0',
-    description='API созданное для ванессы, впрочем, оно доступно всем',
-    openapi_tags=[
-        {
-            'name': 'Типы команд',
-            'description': 'Поле "type" для команд',
-        }
-    ],
+    description='API для мохостана',
 )
 app.include_router(types_router)
 

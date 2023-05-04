@@ -1,5 +1,4 @@
 """Стандартные HTTP json ответы."""
-from fastapi import HTTPException
 from starlette.responses import JSONResponse
 from starlette.status import (
     HTTP_200_OK, HTTP_201_CREATED, HTTP_404_NOT_FOUND, HTTP_204_NO_CONTENT,
