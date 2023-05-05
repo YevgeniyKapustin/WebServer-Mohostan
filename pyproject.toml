@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "webserver-mohostan"
+version = "1.0"
+description = "Сервер для нужд мохостана"
+authors = ["Евгений Капустин <kapustaevg@gmail.com>"]
+license = "GPL-3.0 license"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+alembic = "^1.10.4"
+SQLAlchemy = "^2.0.12"
+redis = "^4.5.4"
+fastapi = "^0.95.1"
+uvicorn = "^0.22.0"
+fastapi-cache2 = "^0.2.1"
+python-dotenv = "^1.0.0"
+psycopg2-binary = "^2.9.6"
+gunicorn = "^20.1.0"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
