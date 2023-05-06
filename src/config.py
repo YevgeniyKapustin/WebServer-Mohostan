@@ -1,14 +1,16 @@
-"""Модуль для сбора переменных окружения"""
+"""Модуль для сбора переменных окружения и переменных конфигурации"""
 from dotenv import load_dotenv
-from os import environ
+from os import getenv
 
 load_dotenv()
-
-POSTGRES_USER: str = environ.get('POSTGRES_USER')
-POSTGRES_PASSWORD: str = environ.get('POSTGRES_PASSWORD')
-POSTGRES_HOST: str = environ.get('POSTGRES_HOST')
-POSTGRES_PORT: str = environ.get('POSTGRES_PORT')
-POSTGRES_DB: str = environ.get('POSTGRES_DB')
+# переменные окружения
+POSTGRES_USER: str = getenv('POSTGRES_USER')
+POSTGRES_PASSWORD: str = getenv('POSTGRES_PASSWORD')
+POSTGRES_HOST: str = getenv('POSTGRES_HOST')
+POSTGRES_PORT: str = getenv('POSTGRES_PORT')
+POSTGRES_DB: str = getenv('POSTGRES_DB')
+SECRET_KEY: str = getenv('SECRET_KEY')
+# переменные конфигурации
 POSTGRES_URL: str = (
     f'postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@'
     f'{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}'
