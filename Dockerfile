@@ -1,5 +1,5 @@
 # Не предназначен для запуска без базы данных
-FROM python:3.10
+FROM python:3.11
 
 WORKDIR /app/
 
