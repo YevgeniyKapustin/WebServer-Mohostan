@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from fastapi_cache.decorator import cache
 from starlette.responses import JSONResponse
 from starlette.status import (
@@ -12,6 +12,7 @@ from src.json_responses import (
     CreateJSONResponse
 )
 from src.schemas import CreateScheme, NotFoundScheme, OkScheme
+from users.models import User
 
 router = APIRouter(
     prefix='/api/v1/types',
@@ -73,7 +74,10 @@ async def get_type(name: str) -> JSONResponse:
         }
     }
 )
-async def create_type(command_type: TypeScheme) -> JSONResponse:
+async def create_type(
+        command_type: TypeScheme,
+        current_user: User = Depends(get_current_user_by_token),
+) -> JSONResponse:
     if await TypeCRUD(command_type.name).read():
         return OkJSONResponse
 
