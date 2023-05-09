@@ -12,7 +12,8 @@ from src.json_responses import (
     CreateJSONResponse
 )
 from src.schemas import CreateScheme, NotFoundScheme, OkScheme
-from users.models import User
+from src.users.models import User
+from src.users.services import get_current_user_by_token
 
 router = APIRouter(
     prefix='/api/v1/types',

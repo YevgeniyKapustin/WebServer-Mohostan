@@ -20,6 +20,12 @@ class NoContentScheme(BaseModel):
     description: str = 'Объект остался прежним'
 
 
+class UnauthorizedScheme(BaseModel):
+    """Схема 401 Unauthorized."""
+    message: str = 'Unauthorized'
+    description: str = 'Вы не авторизованы'
+
+
 class NotFoundScheme(BaseModel):
     """Схема 404 NotFound."""
     message: str = 'NotFound'

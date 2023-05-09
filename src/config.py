@@ -19,3 +19,4 @@ POSTGRES_URL: str = (
     f'postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@'
     f'{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}'
 )
+TOKEN_URL = 'api/v1/auth/login'

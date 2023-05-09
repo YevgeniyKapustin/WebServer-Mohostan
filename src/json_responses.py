@@ -2,12 +2,12 @@
 from starlette.responses import JSONResponse
 from starlette.status import (
     HTTP_200_OK, HTTP_201_CREATED, HTTP_404_NOT_FOUND, HTTP_204_NO_CONTENT,
-    HTTP_422_UNPROCESSABLE_ENTITY
+    HTTP_422_UNPROCESSABLE_ENTITY, HTTP_401_UNAUTHORIZED
 )
 
 from src.schemas import (
     CreateScheme, NotFoundScheme, UnpassableEntityScheme, OkScheme,
-    NoContentScheme
+    NoContentScheme, UnauthorizedScheme
 )
 
 OkJSONResponse = JSONResponse(
@@ -23,6 +23,11 @@ CreateJSONResponse = JSONResponse(
 NoContentJSONResponse = JSONResponse(
     content=NoContentScheme().dict(),
     status_code=HTTP_204_NO_CONTENT,
+)
+
+UnauthorizedResponse = JSONResponse(
+    content=UnauthorizedScheme().dict(),
+    status_code=HTTP_401_UNAUTHORIZED,
 )
 
 NotFoundJSONResponse = JSONResponse(
