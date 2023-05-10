@@ -13,17 +13,17 @@ password_context = CryptContext(
 )
 
 
-def verify_password(plain_password: str, hashed_password: str) -> bool:
+async def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Проверяет соответствие пароля хэшированному паролю."""
     return password_context.verify(plain_password, hashed_password)
 
 
-def get_string_hash(string: str) -> str:
+async def get_string_hash(string: str) -> str:
     """Возвращает хэш от строки."""
     return password_context.hash(string)
 
 
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
+async def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     """Создание JWT токена"""
     to_encode = data.copy()
 

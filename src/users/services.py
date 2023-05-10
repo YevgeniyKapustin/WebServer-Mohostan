@@ -14,12 +14,11 @@ from src.users.utils import get_string_hash, verify_password
 
 async def create_user(user: schemas.UserCreate) -> bool:
     """Создание пользователя."""
-    a = await get_user_by_email(user.email)
     if not await get_user_by_email(user.email):
         session.add(
             User(
                 email=user.email,
-                hashed_password=get_string_hash(user.password),
+                hashed_password=await get_string_hash(user.password),
             )
         )
         session.commit()
@@ -44,14 +43,14 @@ async def authenticate_user(email: str, password: str) -> Optional[User]:
     user = await get_user_by_email(email)
     if not user:
         return None
-    if not verify_password(password, user.hashed_password):
+    if not await verify_password(password, user.hashed_password):
         return None
     return user
 
 
 async def get_current_user_by_token(
     token: str = Depends(OAuth2PasswordBearer(tokenUrl=TOKEN_URL))
-):
+) -> Optional[User]:
     credentials_exception = HTTPException(
         status_code=HTTP_401_UNAUTHORIZED,
         detail='Вы не авторизованы',
