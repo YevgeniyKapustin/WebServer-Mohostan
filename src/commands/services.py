@@ -1,5 +1,5 @@
 from src.database import session
-from src.commands_types.models import Type
+from src.commands.models import Type
 
 
 class TypeCRUD(object):

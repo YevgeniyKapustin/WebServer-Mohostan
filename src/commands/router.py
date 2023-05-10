@@ -5,8 +5,8 @@ from starlette.status import (
     HTTP_404_NOT_FOUND, HTTP_201_CREATED, HTTP_200_OK
 )
 
-from src.commands_types.schemas import TypeScheme
-from src.commands_types.services import TypeCRUD
+from src.commands.schemas import TypeScheme
+from src.commands.services import TypeCRUD
 from src.json_responses import (
     OkJSONResponse, NotFoundJSONResponse, NoContentJSONResponse,
     CreateJSONResponse
