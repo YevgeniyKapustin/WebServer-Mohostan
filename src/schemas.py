@@ -14,12 +14,6 @@ class CreateScheme(BaseModel):
     description: str = 'Создано'
 
 
-class NoContentScheme(BaseModel):
-    """Схема 204 NoContent."""
-    message: str = 'NoContent'
-    description: str = 'Объект остался прежним'
-
-
 class UnauthorizedScheme(BaseModel):
     """Схема 401 Unauthorized."""
     message: str = 'Unauthorized'
