@@ -16,6 +16,7 @@ from src.schemas import (
 )
 from src.users.models import User
 from src.users.services import get_current_user_by_token
+from utils import trust_check
 
 router = APIRouter(
     prefix='/api/v1/types',
@@ -45,6 +46,8 @@ async def get_type(
         current_user: User = Depends(get_current_user_by_token)
 
 ) -> JSONResponse:
+    trust_check(current_user)
+
     model = await TypeCRUD(name).read()
     scheme = TypeScheme(
         id=model.id,
@@ -79,8 +82,9 @@ async def create_type(
         current_user: User = Depends(get_current_user_by_token),
 
 ) -> JSONResponse:
-    obj = TypeCRUD(command_type.name)
+    trust_check(current_user)
 
+    obj = TypeCRUD(command_type.name)
     return await create_object(obj)
 
 
@@ -114,6 +118,8 @@ async def update_type(
         current_user: User = Depends(get_current_user_by_token),
 
 ) -> JSONResponse:
+    trust_check(current_user)
+
     original_obj = TypeCRUD(name)
     new_obj = TypeCRUD(new_type.name)
     data_for_update = (new_type.name,)
@@ -142,6 +148,7 @@ async def delete_type(
         current_user: User = Depends(get_current_user_by_token),
 
 ) -> JSONResponse:
-    obj = TypeCRUD(command_type.name)
+    trust_check(current_user)
 
+    obj = TypeCRUD(command_type.name)
     return await delete_object(obj)
