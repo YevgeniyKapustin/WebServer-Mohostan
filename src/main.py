@@ -4,15 +4,17 @@ from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 from redis import asyncio as aioredis
 
-from src.commands.router import router as types_router
+from src.commands.router import router as command_router
+from src.commands_types.router import router as types_router
 from src.users.router import router as users_router
 
 app = FastAPI(
-    title='Мохостан.Нексус',
+    title='Мохостан',
     version='1.0',
 )
 app.include_router(users_router)
 app.include_router(types_router)
+app.include_router(command_router)
 
 
 @app.on_event('startup')

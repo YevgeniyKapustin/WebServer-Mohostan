@@ -11,7 +11,7 @@ class BaseObjectCRUD(ABC):
         """Чтение объекта из базы данных."""
 
     @abstractmethod
-    async def update(self, data_for_update: tuple) -> bool:
+    async def update(self, data_for_update: dict) -> bool:
         """Обновление объекта в базе данных."""
 
     @abstractmethod

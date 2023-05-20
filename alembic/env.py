@@ -11,8 +11,11 @@ Path(sys.path[0]).joinpath('src')
 from src.config import POSTGRES_URL
 from src.database import Base
 
-from src.commands import models
+
+from src.commands_types import models
 from src.users import models
+from src.commands import models
+
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

@@ -24,11 +24,11 @@ def get_create_response():
     return {
         HTTP_200_OK: {
             'model': OkScheme,
-            'description': 'Тип уже существует',
+            'description': 'Объект уже существует',
         },
         HTTP_201_CREATED: {
             'model': CreateScheme,
-            'description': 'Тип создан',
+            'description': 'Объект создан',
         }
     }
 

@@ -32,12 +32,12 @@ async def create_object(obj: BaseObjectCRUD) -> JSONResponse:
 async def update_object(
         original_obj: BaseObjectCRUD,
         new_obj: BaseObjectCRUD,
-        data_for_update: tuple
+        data_for_update: dict
 
 ) -> JSONResponse:
     if await original_obj.read():
 
-        if not await new_obj.read():
+        if await new_obj.read() is None:
 
             if await original_obj.read() != await new_obj.read():
                 await original_obj.update(data_for_update)
@@ -47,9 +47,9 @@ async def update_object(
                 await original_obj.create()
                 return CreateJSONResponse
         else:
-            return NotFoundJSONResponse
+            return BadRequestJSONResponse
     else:
-        return BadRequestJSONResponse
+        return NotFoundJSONResponse
 
 
 async def delete_object(obj: BaseObjectCRUD) -> JSONResponse:
