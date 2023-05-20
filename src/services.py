@@ -2,12 +2,12 @@ from pydantic import BaseModel
 from starlette.responses import JSONResponse
 from starlette.status import HTTP_200_OK
 
-from database import Base
-from responses import (
+from src.database import Base
+from src.json_responses import (
     OkJSONResponse, CreateJSONResponse, NotFoundJSONResponse,
     BadRequestJSONResponse
 )
-from crud import BaseObjectCRUD
+from src.crud import BaseObjectCRUD
 
 
 async def get_object(model: Base, scheme: BaseModel) -> JSONResponse:

@@ -1,22 +1,19 @@
 from fastapi import APIRouter, Depends
 from fastapi_cache.decorator import cache
 from starlette.responses import JSONResponse
-from starlette.status import (
-    HTTP_404_NOT_FOUND, HTTP_201_CREATED, HTTP_200_OK,
-    HTTP_400_BAD_REQUEST
-)
 
+from default_responses import (
+    get_get_response, get_update_response, get_create_response,
+    get_delete_response
+)
 from src.services import (
     update_object, delete_object, create_object, get_object
 )
 from src.commands.schemas import TypeScheme
 from src.commands.services import TypeCRUD
-from src.schemas import (
-    CreateScheme, NotFoundScheme, OkScheme, BadRequestScheme
-)
 from src.users.models import User
 from src.users.services import get_current_user_by_token
-from utils import trust_check
+from src.utils import trust_check
 
 router = APIRouter(
     prefix='/api/v1/types',
@@ -27,18 +24,7 @@ router = APIRouter(
 @router.get(
     "/{name}",
     name="Возвращает информацию о типе команды",
-    status_code=HTTP_200_OK,
-    response_model=TypeScheme,
-    responses={
-        HTTP_200_OK: {
-            'model': TypeScheme,
-            'description': 'Тип получен',
-        },
-        HTTP_404_NOT_FOUND: {
-            'model': NotFoundScheme,
-            'description': 'Типа не существует',
-        }
-    }
+    responses=get_get_response(TypeScheme)
 )
 @cache(expire=60)
 async def get_type(
@@ -64,18 +50,7 @@ async def get_type(
     Создает тип для команд, вы сможете самостоятельно обрабатывать команды 
     этого типа уже на своем клиенте, тут они только создаются и хранятся.
     ''',
-    status_code=HTTP_201_CREATED,
-    response_model=CreateScheme,
-    responses={
-        HTTP_200_OK: {
-            'model': OkScheme,
-            'description': 'Тип уже существует',
-        },
-        HTTP_201_CREATED: {
-            'model': CreateScheme,
-            'description': 'Тип создан',
-        }
-    }
+    responses=get_create_response()
 )
 async def create_type(
         command_type: TypeScheme,
@@ -91,26 +66,7 @@ async def create_type(
 @router.put(
     "/{name}",
     name="Изменяет имя типа команды",
-    status_code=HTTP_200_OK,
-    response_model=TypeScheme,
-    responses={
-        HTTP_200_OK: {
-            'model': OkScheme,
-            'description': 'Объект изменен',
-        },
-        HTTP_201_CREATED: {
-            'model': CreateScheme,
-            'description': 'Объект создан',
-        },
-        HTTP_400_BAD_REQUEST: {
-            'model': BadRequestScheme,
-            'description': 'Конечный объект уже существует'
-        },
-        HTTP_404_NOT_FOUND: {
-            'model': NotFoundScheme,
-            'description': 'Объект не существует',
-        },
-    }
+    responses=get_update_response()
 )
 async def update_type(
         name: str,
@@ -130,18 +86,7 @@ async def update_type(
 @router.delete(
     "/",
     name="Удаляет тип команды",
-    status_code=HTTP_200_OK,
-    response_model=TypeScheme,
-    responses={
-        HTTP_200_OK: {
-            'model': OkScheme,
-            'description': 'Объект удален',
-        },
-        HTTP_404_NOT_FOUND: {
-            'model': NotFoundScheme,
-            'description': 'Объект не существует',
-        },
-    }
+    responses=get_delete_response()
 )
 async def delete_type(
         command_type: TypeScheme,

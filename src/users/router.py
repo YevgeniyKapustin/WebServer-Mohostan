@@ -7,7 +7,7 @@ from fastapi import status
 from fastapi.security import OAuth2PasswordRequestForm
 from starlette.status import HTTP_200_OK, HTTP_201_CREATED
 
-from src.responses import CreateJSONResponse
+from src.json_responses import CreateJSONResponse
 from src.schemas import CreateScheme, OkScheme
 from src.config import ACCESS_TOKEN_EXPIRE_MINUTES
 from src.users import schemas
