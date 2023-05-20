@@ -2,16 +2,18 @@ from fastapi import APIRouter, Depends
 from fastapi_cache.decorator import cache
 from starlette.responses import JSONResponse
 from starlette.status import (
-    HTTP_404_NOT_FOUND, HTTP_201_CREATED, HTTP_200_OK
+    HTTP_404_NOT_FOUND, HTTP_201_CREATED, HTTP_200_OK,
+    HTTP_400_BAD_REQUEST
 )
 
+from src.services import (
+    update_object, delete_object, create_object, get_object
+)
 from src.commands.schemas import TypeScheme
 from src.commands.services import TypeCRUD
-from src.json_responses import (
-    OkJSONResponse, NotFoundJSONResponse, NoContentJSONResponse,
-    CreateJSONResponse
+from src.schemas import (
+    CreateScheme, NotFoundScheme, OkScheme, BadRequestScheme
 )
-from src.schemas import CreateScheme, NotFoundScheme, OkScheme
 from src.users.models import User
 from src.users.services import get_current_user_by_token
 
@@ -38,21 +40,18 @@ router = APIRouter(
     }
 )
 @cache(expire=60)
-async def get_type(name: str) -> JSONResponse:
-    type_by_name = await TypeCRUD(name).read()
+async def get_type(
+        name: str,
+        current_user: User = Depends(get_current_user_by_token)
 
-    if type_by_name:
-        obj = TypeScheme(
-            id=type_by_name.id,
-            name=type_by_name.name
-        )
-        return JSONResponse(
-            content=obj.dict(),
-            status_code=HTTP_200_OK,
-        )
+) -> JSONResponse:
+    model = await TypeCRUD(name).read()
+    scheme = TypeScheme(
+        id=model.id,
+        name=model.name
+    ) if hasattr(model, 'id') else ...
 
-    else:
-        return NotFoundJSONResponse
+    return await get_object(model, scheme)
 
 
 @router.post(
@@ -78,13 +77,11 @@ async def get_type(name: str) -> JSONResponse:
 async def create_type(
         command_type: TypeScheme,
         current_user: User = Depends(get_current_user_by_token),
-) -> JSONResponse:
-    if await TypeCRUD(command_type.name).read():
-        return OkJSONResponse
 
-    else:
-        await TypeCRUD(command_type.name).create()
-        return CreateJSONResponse
+) -> JSONResponse:
+    obj = TypeCRUD(command_type.name)
+
+    return await create_object(obj)
 
 
 @router.put(
@@ -95,30 +92,33 @@ async def create_type(
     responses={
         HTTP_200_OK: {
             'model': OkScheme,
-            'description': 'Тип изменен',
+            'description': 'Объект изменен',
         },
         HTTP_201_CREATED: {
             'model': CreateScheme,
-            'description': 'Тип создан',
+            'description': 'Объект создан',
+        },
+        HTTP_400_BAD_REQUEST: {
+            'model': BadRequestScheme,
+            'description': 'Конечный объект уже существует'
+        },
+        HTTP_404_NOT_FOUND: {
+            'model': NotFoundScheme,
+            'description': 'Объект не существует',
         },
     }
 )
-async def update_type(name: str, new_type: TypeScheme) -> JSONResponse:
+async def update_type(
+        name: str,
+        new_type: TypeScheme,
+        current_user: User = Depends(get_current_user_by_token),
+
+) -> JSONResponse:
     original_obj = TypeCRUD(name)
     new_obj = TypeCRUD(new_type.name)
+    data_for_update = (new_type.name,)
 
-    if await original_obj.read() and not await new_obj.read():
-
-        if await original_obj.read() != await new_obj.read():
-            await original_obj.update(new_type.name)
-            return OkJSONResponse
-
-        else:
-            await original_obj.create()
-            return CreateJSONResponse
-
-    else:
-        return NoContentJSONResponse
+    return await update_object(original_obj, new_obj, data_for_update)
 
 
 @router.delete(
@@ -129,20 +129,19 @@ async def update_type(name: str, new_type: TypeScheme) -> JSONResponse:
     responses={
         HTTP_200_OK: {
             'model': OkScheme,
-            'description': 'Тип удален',
+            'description': 'Объект удален',
         },
         HTTP_404_NOT_FOUND: {
             'model': NotFoundScheme,
-            'description': 'Типа не существует',
+            'description': 'Объект не существует',
         },
     }
 )
-async def delete_type(command_type: TypeScheme) -> JSONResponse:
+async def delete_type(
+        command_type: TypeScheme,
+        current_user: User = Depends(get_current_user_by_token),
+
+) -> JSONResponse:
     obj = TypeCRUD(command_type.name)
 
-    if await obj.read():
-        await obj.delete()
-        return OkJSONResponse
-
-    else:
-        return NotFoundJSONResponse
+    return await delete_object(obj)

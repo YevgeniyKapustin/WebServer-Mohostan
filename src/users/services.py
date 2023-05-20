@@ -1,18 +1,16 @@
-from typing import Optional
-
 import jwt
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from starlette.status import HTTP_401_UNAUTHORIZED, HTTP_400_BAD_REQUEST
 
-from src.config import SECRET_KEY, ALGORITHM, TOKEN_URL
+from src.config import SECRET_KEY, TOKEN_URL, JWT_ALGORITHM
 from src.database import session
-from src.users import schemas
 from src.users.models import User
 from src.users.utils import get_string_hash, verify_password
+from src.users.schemas import UserCreate
 
 
-async def create_user(user: schemas.UserCreate) -> bool:
+async def create_user(user: UserCreate) -> bool:
     """Создание пользователя."""
     if not await get_user_by_email(user.email):
         session.add(
@@ -23,6 +21,7 @@ async def create_user(user: schemas.UserCreate) -> bool:
         )
         session.commit()
         return True
+
     raise HTTPException(
         status_code=HTTP_400_BAD_REQUEST,
         detail='Пользователь с таким email уже существует',
@@ -38,7 +37,7 @@ async def get_user_by_email(email: str) -> User:
     )
 
 
-async def authenticate_user(email: str, password: str) -> Optional[User]:
+async def authenticate_user(email: str, password: str) -> User | None:
     """Определение подлинности пользователя"""
     user = await get_user_by_email(email)
     if not user:
@@ -50,21 +49,28 @@ async def authenticate_user(email: str, password: str) -> Optional[User]:
 
 async def get_current_user_by_token(
     token: str = Depends(OAuth2PasswordBearer(tokenUrl=TOKEN_URL))
-) -> Optional[User]:
+
+) -> User | None:
     credentials_exception = HTTPException(
         status_code=HTTP_401_UNAUTHORIZED,
         detail='Вы не авторизованы',
     )
+
     try:
         payload = jwt.decode(
-            token, SECRET_KEY, algorithms=[ALGORITHM]
+            token, SECRET_KEY, algorithms=[JWT_ALGORITHM]
         )
         email: str = payload.get("sub")
+
         if email is None:
             raise credentials_exception
+
     except jwt.DecodeError:
         raise credentials_exception
+
     user = await get_user_by_email(email=email)
+
     if user is None:
         raise credentials_exception
+
     return user

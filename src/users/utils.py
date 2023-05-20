@@ -1,11 +1,9 @@
-from datetime import datetime
-from datetime import timedelta
-from typing import Optional
+from datetime import datetime, timedelta
 
 from jwt import encode
 from passlib.context import CryptContext
 
-from src.config import ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY, ALGORITHM
+from src.config import ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY, JWT_ALGORITHM
 
 password_context = CryptContext(
     schemes=["bcrypt"],
@@ -23,7 +21,10 @@ async def get_string_hash(string: str) -> str:
     return password_context.hash(string)
 
 
-async def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
+async def create_access_token(
+        data: dict,
+        expires_delta: timedelta | None = None
+):
     """Создание JWT токена"""
     to_encode = data.copy()
 
@@ -41,6 +42,6 @@ async def create_access_token(data: dict, expires_delta: Optional[timedelta] = N
     )
 
     encoded_jwt = encode(
-        to_encode, SECRET_KEY, algorithm=ALGORITHM
+        to_encode, SECRET_KEY, algorithm=JWT_ALGORITHM
     )
     return encoded_jwt

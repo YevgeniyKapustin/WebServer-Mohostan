@@ -14,6 +14,12 @@ class CreateScheme(BaseModel):
     description: str = 'Создано'
 
 
+class BadRequestScheme(BaseModel):
+    """Схема 400 BadRequest."""
+    message: str = 'BadRequest'
+    description: str = 'Ошибочный запрос'
+
+
 class UnauthorizedScheme(BaseModel):
     """Схема 401 Unauthorized."""
     message: str = 'Unauthorized'

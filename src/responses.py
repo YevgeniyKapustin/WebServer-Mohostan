@@ -1,13 +1,13 @@
 """Стандартные HTTP json ответы."""
 from starlette.responses import JSONResponse
 from starlette.status import (
-    HTTP_200_OK, HTTP_201_CREATED, HTTP_404_NOT_FOUND,
-    HTTP_422_UNPROCESSABLE_ENTITY, HTTP_401_UNAUTHORIZED
+    HTTP_200_OK, HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED,
+    HTTP_404_NOT_FOUND, HTTP_422_UNPROCESSABLE_ENTITY
 )
 
 from src.schemas import (
     CreateScheme, NotFoundScheme, UnpassableEntityScheme, OkScheme,
-    UnauthorizedScheme
+    UnauthorizedScheme, BadRequestScheme
 )
 
 OkJSONResponse = JSONResponse(
@@ -23,6 +23,11 @@ CreateJSONResponse = JSONResponse(
 UnauthorizedResponse = JSONResponse(
     content=UnauthorizedScheme().dict(),
     status_code=HTTP_401_UNAUTHORIZED,
+)
+
+BadRequestJSONResponse = JSONResponse(
+    content=BadRequestScheme().dict(),
+    status_code=HTTP_400_BAD_REQUEST,
 )
 
 NotFoundJSONResponse = JSONResponse(
