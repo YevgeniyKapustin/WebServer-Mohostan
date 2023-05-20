@@ -9,8 +9,8 @@ from default_responses import (
 from src.services import (
     update_object, delete_object, create_object, get_object
 )
-from src.commands.schemas import TypeScheme
-from src.commands.services import TypeCRUD
+from src.commands_types.schemas import TypeScheme, TypeCreateScheme
+from src.commands_types.services import TypeCRUD
 from src.users.models import User
 from src.users.services import get_current_user_by_token
 from src.utils import trust_check
@@ -22,19 +22,19 @@ router = APIRouter(
 
 
 @router.get(
-    "/{name}",
+    "/{id}",
     name="Возвращает информацию о типе команды",
     responses=get_get_response(TypeScheme)
 )
 @cache(expire=60)
 async def get_type(
-        name: str,
+        id: int,
         current_user: User = Depends(get_current_user_by_token)
 
 ) -> JSONResponse:
     trust_check(current_user)
 
-    model = await TypeCRUD(name).read()
+    model = await TypeCRUD(id).read()
     scheme = TypeScheme(
         id=model.id,
         name=model.name
@@ -53,31 +53,31 @@ async def get_type(
     responses=get_create_response()
 )
 async def create_type(
-        command_type: TypeScheme,
+        command_type: TypeCreateScheme,
         current_user: User = Depends(get_current_user_by_token),
 
 ) -> JSONResponse:
     trust_check(current_user)
 
-    obj = TypeCRUD(command_type.name)
+    obj = TypeCRUD(name=command_type.name)
     return await create_object(obj)
 
 
 @router.put(
-    "/{name}",
+    "/{id}",
     name="Изменяет имя типа команды",
     responses=get_update_response()
 )
 async def update_type(
-        name: str,
-        new_type: TypeScheme,
+        id: int,
+        new_type: TypeCreateScheme,
         current_user: User = Depends(get_current_user_by_token),
 
 ) -> JSONResponse:
     trust_check(current_user)
 
-    original_obj = TypeCRUD(name)
-    new_obj = TypeCRUD(new_type.name)
+    original_obj = TypeCRUD(id_=id)
+    new_obj = TypeCRUD(name=new_type.name)
     data_for_update = (new_type.name,)
 
     return await update_object(original_obj, new_obj, data_for_update)
@@ -89,11 +89,11 @@ async def update_type(
     responses=get_delete_response()
 )
 async def delete_type(
-        command_type: TypeScheme,
+        id: int,
         current_user: User = Depends(get_current_user_by_token),
 
 ) -> JSONResponse:
     trust_check(current_user)
 
-    obj = TypeCRUD(command_type.name)
+    obj = TypeCRUD(id)
     return await delete_object(obj)
