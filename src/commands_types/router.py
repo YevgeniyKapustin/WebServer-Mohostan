@@ -17,7 +17,7 @@ from src.utils import trust_check
 
 router = APIRouter(
     prefix='/api/v1/types',
-    tags=['Команды / Типы'],
+    tags=['Типы команд'],
 )
 
 
