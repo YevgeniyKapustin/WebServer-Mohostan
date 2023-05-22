@@ -1,25 +1,25 @@
 import jwt
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
+from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.status import HTTP_401_UNAUTHORIZED, HTTP_400_BAD_REQUEST
 
 from src.config import SECRET_KEY, TOKEN_URL, JWT_ALGORITHM
-from src.database import session
 from src.users.models import User
 from src.users.utils import get_string_hash, verify_password
 from src.users.schemas import UserCreate
 
 
-async def create_user(user: UserCreate) -> bool:
+async def create_user(session: AsyncSession, user: UserCreate) -> bool:
     """Создание пользователя."""
-    if not await get_user_by_email(user.email):
+    if not await get_user_by_email(session, user.email):
         session.add(
             User(
                 email=user.email,
                 hashed_password=await get_string_hash(user.password),
             )
         )
-        session.commit()
+        await session.commit()
         return True
 
     raise HTTPException(
@@ -28,18 +28,21 @@ async def create_user(user: UserCreate) -> bool:
     )
 
 
-async def get_user_by_email(email: str) -> User:
+async def get_user_by_email(session: AsyncSession, email: str) -> User:
     """Получение пользователя по email."""
     return (
-        session.query(User).
+        await session.query(User).
         where(User.email == email).
         first()
     )
 
 
-async def authenticate_user(email: str, password: str) -> User | None:
+async def authenticate_user(
+        session: AsyncSession, email: str, password: str
+
+) -> User | None:
     """Определение подлинности пользователя"""
-    user = await get_user_by_email(email)
+    user = await get_user_by_email(session, email)
     if not user:
         return None
     if not await verify_password(password, user.hashed_password):
@@ -48,6 +51,8 @@ async def authenticate_user(email: str, password: str) -> User | None:
 
 
 async def get_current_user_by_token(
+    session: AsyncSession,
+
     token: str = Depends(OAuth2PasswordBearer(tokenUrl=TOKEN_URL))
 
 ) -> User | None:
@@ -68,7 +73,7 @@ async def get_current_user_by_token(
     except jwt.DecodeError:
         raise credentials_exception
 
-    user = await get_user_by_email(email=email)
+    user = await get_user_by_email(session, email=email)
 
     if user is None:
         raise credentials_exception

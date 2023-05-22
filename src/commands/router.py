@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi_cache.decorator import cache
+from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import JSONResponse
 from starlette.status import HTTP_404_NOT_FOUND
 
+from src.database import get_async_session
 from src.commands.models import Command
 from src.commands.schemas import CommandScheme, CommandCreateScheme
 from src.commands.services import CommandCRUD
@@ -25,19 +27,21 @@ router = APIRouter(
 
 
 @router.get(
-    "/{id}",
-    name="Возвращает информацию о команде",
+    '/{id}',
+    name='Возвращает информацию о команде',
     responses=get_get_response(CommandScheme)
 )
 @cache(expire=60)
 async def get_command(
         id: int,
-        current_user: User = Depends(get_current_user_by_token)
+
+        current_user: User = Depends(get_current_user_by_token),
+        session: AsyncSession = Depends(get_async_session),
 
 ) -> JSONResponse:
     trust_check(current_user)
 
-    model: Command = await CommandCRUD(id).read()
+    model: Command = await CommandCRUD(session, id).read()
     scheme = CommandScheme(
         id=model.id,
         type_id=model.type_id,
@@ -50,20 +54,23 @@ async def get_command(
 
 @router.post(
     '/',
-    name="Создает команду",
+    name='Создает команду',
     responses=get_create_response()
 )
 async def create_command(
         command: CommandCreateScheme,
+
         current_user: User = Depends(get_current_user_by_token),
+        session: AsyncSession = Depends(get_async_session),
 
 ) -> JSONResponse:
     trust_check(current_user)
 
-    if (command_type := await TypeCRUD(id_=command.type_id).read()) is None:
+    if not (command_type := await TypeCRUD(session, command.type_id).read()):
         raise HTTPException(HTTP_404_NOT_FOUND, detail='Тип не найден')
 
     obj = CommandCRUD(
+        session,
         type_=command_type,
         request=command.request,
         response=command.response,
@@ -72,21 +79,24 @@ async def create_command(
 
 
 @router.put(
-    "/{id}",
-    name="Изменяет команду",
+    '/{id}',
+    name='Изменяет команду',
     responses=get_update_response()
 )
 async def update_command(
         id: int,
         new_command: CommandCreateScheme,
+
         current_user: User = Depends(get_current_user_by_token),
+        session: AsyncSession = Depends(get_async_session),
 
 ) -> JSONResponse:
     trust_check(current_user)
 
-    original_obj = CommandCRUD(id_=id)
+    original_obj = CommandCRUD(session, id=id)
     new_obj = CommandCRUD(
-        type_=await TypeCRUD(id_=new_command.type_id).read(),
+        session,
+        type_=await TypeCRUD(session, id=new_command.type_id).read(),
         request=new_command.request,
         response=new_command.response,
     )
@@ -96,16 +106,18 @@ async def update_command(
 
 
 @router.delete(
-    "/",
-    name="Удаляет команду",
+    '/',
+    name='Удаляет команду',
     responses=get_delete_response()
 )
 async def delete_type(
         command_id: int,
+
         current_user: User = Depends(get_current_user_by_token),
+        session: AsyncSession = Depends(get_async_session),
 
 ) -> JSONResponse:
     trust_check(current_user)
 
-    obj = CommandCRUD(command_id)
+    obj = CommandCRUD(session, command_id)
     return await delete_object(obj)
