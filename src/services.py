@@ -59,3 +59,8 @@ async def delete_object(obj: BaseObjectCRUD) -> JSONResponse:
 
     else:
         return NotFoundJSONResponse
+
+
+async def execute_first_object(session, query):
+    result = await session.execute(query)
+    return result.scalars().first()

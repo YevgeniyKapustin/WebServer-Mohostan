@@ -1,5 +1,7 @@
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.services import execute_first_object
 from src.crud import BaseObjectCRUD
 from src.commands.models import Command
 from src.commands_types.services import TypeCRUD
@@ -43,21 +45,22 @@ class CommandCRUD(BaseObjectCRUD):
     async def read(self) -> Command | None:
         """Чтение объекта из базы данных."""
         if self.__id:
-            return (
-                await self.__session.query(Command).
-                where(Command.id == self.__id).
-                first()
+            query = (
+                select(Command).
+                where(Command.id == self.__id)
             )
+            return await execute_first_object(self.__session, query)
+
         elif self.__request and self.__type and self.__response:
-            return (
-                await self.__session.query(Command).
+            query = (
+                select(Command).
                 where(
                     Command.request == self.__request,
                     Command.type_id == self.__type.id,
                     Command.response == self.__response,
-                ).
-                first()
+                )
             )
+            return await execute_first_object(self.__session, query)
 
     async def update(self, new_obj: dict) -> bool:
         """Обновление объекта в базы данных."""

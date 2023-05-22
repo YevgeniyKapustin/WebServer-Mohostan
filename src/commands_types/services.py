@@ -1,5 +1,7 @@
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.services import execute_first_object
 from src.crud import BaseObjectCRUD
 from src.commands_types.models import Type
 
@@ -26,17 +28,17 @@ class TypeCRUD(BaseObjectCRUD):
     async def read(self) -> Type | None:
         """Чтение объекта из базы данных."""
         if self.__id:
-            return (
-                self.__session.query(Type).
-                where(Type.id == self.__id).
-                first()
+            query = (
+                select(Type).
+                where(Type.id == self.__id)
             )
+            return await execute_first_object(self.__session, query)
         elif self.__name:
-            return (
-                self.__session.query(Type).
-                where(Type.name == self.__name).
-                first()
+            query = (
+                select(Type).
+                where(Type.name == self.__name)
             )
+            return await execute_first_object(self.__session, query)
 
     async def update(self, new_name: str) -> bool:
         """Обновление объекта в базы данных."""
@@ -51,6 +53,7 @@ class TypeCRUD(BaseObjectCRUD):
 
     async def delete(self) -> bool:
         """Удаление объекта из базы данных."""
+        a = await self.read()
         await self.__session.delete(await self.read())
         await self.__session.commit()
         return True

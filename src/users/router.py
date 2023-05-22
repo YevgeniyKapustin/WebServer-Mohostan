@@ -36,8 +36,7 @@ router = APIRouter(
 )
 async def get_access_token(
         form_data: OAuth2PasswordRequestForm = Depends(),
-
-        session: AsyncSession = Depends(get_async_session)
+        session: AsyncSession = Depends(get_async_session),
 
 ) -> schemas.Token:
     user = await authenticate_user(
