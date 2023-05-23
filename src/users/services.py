@@ -3,7 +3,7 @@ from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from starlette.status import HTTP_401_UNAUTHORIZED, HTTP_400_BAD_REQUEST
+from starlette.status import HTTP_401_UNAUTHORIZED, HTTP_200_OK
 
 from src.database import get_async_session
 from src.services import execute_first_object
@@ -26,7 +26,7 @@ async def create_user(session: AsyncSession, user: UserCreate) -> bool:
         return True
 
     raise HTTPException(
-        status_code=HTTP_400_BAD_REQUEST,
+        status_code=HTTP_200_OK,
         detail='Пользователь с таким email уже существует',
     )
 

@@ -12,7 +12,7 @@ from src.config import POSTGRES_URL
 from src.database import Base
 
 
-from src.commands_types import models
+from src.types import models
 from src.users import models
 from src.commands import models
 

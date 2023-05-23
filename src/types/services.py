@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.services import execute_first_object
 from src.crud import BaseObjectCRUD
-from src.commands_types.models import Type
+from src.types.models import Type
 
 
 class TypeCRUD(BaseObjectCRUD):

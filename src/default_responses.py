@@ -47,10 +47,6 @@ def get_update_response():
             'model': BadRequestScheme,
             'description': 'Конечный объект уже существует'
         },
-        HTTP_404_NOT_FOUND: {
-            'model': NotFoundScheme,
-            'description': 'Объект не существует',
-        },
     }
 
 

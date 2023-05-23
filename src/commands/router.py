@@ -15,7 +15,7 @@ from src.default_responses import (
 from src.services import (
     update_object, delete_object, create_object, get_object
 )
-from src.commands_types.services import TypeCRUD
+from src.types.services import TypeCRUD
 from src.users.models import User
 from src.users.services import get_current_user_by_token
 from src.utils import trust_check

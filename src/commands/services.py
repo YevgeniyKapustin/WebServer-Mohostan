@@ -4,8 +4,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.services import execute_first_object
 from src.crud import BaseObjectCRUD
 from src.commands.models import Command
-from src.commands_types.services import TypeCRUD
-from src.commands_types.models import Type
+from src.types.services import TypeCRUD
+from src.types.models import Type
 
 
 class CommandCRUD(BaseObjectCRUD):
