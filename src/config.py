@@ -22,6 +22,6 @@ JWT_ALGORITHM: str = getenv('JWT_ALGORITHM')
 # переменные конфигурации
 POSTGRES_URL: str = (
     f'postgresql+asyncpg://{POSTGRES_USER}:{POSTGRES_PASSWORD}@'
-    f'{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}'
+    f'{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}?async_fallback=True'
 )
 TOKEN_URL: str = 'api/v1/auth/login'

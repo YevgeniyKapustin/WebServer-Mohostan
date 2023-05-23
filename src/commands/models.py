@@ -11,5 +11,3 @@ class Command(Base):
     type_id = Column(Integer, ForeignKey('type.id'), nullable=False)
     request = Column(TEXT, nullable=False)
     response = Column(TEXT, nullable=False)
-
-    type = relationship('Type', backref='commands')
