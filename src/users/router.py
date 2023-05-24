@@ -11,7 +11,7 @@ from starlette.status import HTTP_200_OK, HTTP_201_CREATED
 from src.database import get_async_session
 from src.json_responses import CreateJSONResponse
 from src.schemas import CreateScheme, OkScheme
-from src.config import ACCESS_TOKEN_EXPIRE_MINUTES
+from src.config import Settings
 from src.users import schemas
 from src.users.services import authenticate_user, create_user
 from src.users.utils import create_access_token
@@ -52,7 +52,7 @@ async def get_access_token(
         data={
             'sub': user.email
         },
-        expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
+        expires_delta=timedelta(minutes=Settings().ACCESS_TOKEN_EXPIRE_MINUTES),
     )
 
     return schemas.Token(
