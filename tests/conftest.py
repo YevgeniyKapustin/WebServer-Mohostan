@@ -1,5 +1,4 @@
 import asyncio
-import json
 from typing import AsyncGenerator
 
 import pytest
@@ -9,13 +8,16 @@ from sqlalchemy.ext.asyncio import (
 )
 from sqlalchemy.pool import NullPool
 
-from src.config import TEST_POSTGRES_URL
+from src.config import Settings
 from src.database import get_async_session, Base
 from src.main import app
 from src.users.models import User
 
+# устанавливаем .env для тестов
+test_settings = Settings(_env_file='../tests/.env')
+# создаем тестовые движок и создатель сессий на нем
 test_engin: AsyncEngine = create_async_engine(
-    TEST_POSTGRES_URL, poolclass=NullPool
+    test_settings.POSTGRES_URL, poolclass=NullPool
 )
 async_session_maker = async_sessionmaker(test_engin, expire_on_commit=False)
 
@@ -25,17 +27,32 @@ async def override_get_async_session() -> AsyncGenerator[AsyncSession, None]:
         yield session
 
 
+# переписываем зависимость сессии, чтобы использовался наш создатель сессии
 app.dependency_overrides[get_async_session] = override_get_async_session
 
 
 @pytest.fixture(autouse=True, scope='session')
 async def prepare_database():
+    """Создает таблицы при прогоне тестов и удаляет при завершении."""
     async with test_engin.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-        await create_trust_user()
+        # await conn.run_sync(Base.metadata.create_all)
+        create_super_user()
     yield
     async with test_engin.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
+
+
+async def create_super_user():
+    async with async_session_maker() as session:
+        obj = User(
+            email='dev@test.com',
+            hashed_password=(  # 666
+                '$2b$12$EBg3fGaSyuPFoph4AAbeAeENjI9zj19KFwsbVrAGKYKbyPWrM8Qyi'
+            ),
+        )
+        session.add(obj)
+        await session.commit()
+        yield
 
 
 @pytest.fixture(scope='session')
@@ -52,39 +69,16 @@ async def async_session() -> AsyncGenerator[AsyncClient, None]:
         yield async_session
 
 
-async def user_token():
-    async with async_session_maker() as session:
-        response = session.post(
-            'api/v1/auth/login',
-            data={
-                'username': 'dev@test.com',
-                'password': '666',
-            }
-        )
-        decode_response: str = response.content.decode('UTF-8')
-        data: dict = json.loads(decode_response)
-        return data.get('access_token')
-
-
-async def create_trust_user():
-    async with async_session_maker() as session:
-        obj = User(
-            email='dev@test.com',
-            hashed_password=(  # 666
-                '$2b$12$EBg3fGaSyuPFoph4AAbeAeENjI9zj19KFwsbVrAGKYKbyPWrM8Qyi'
-            ),
-            is_trusted=True
-        )
-        session.add(obj)
-        await session.commit()
-
-def get_superuser_token_headers(client: TestClient) -> Dict[str, str]:
-    login_data = {
-        "username": settings.FIRST_SUPERUSER,
-        "password": settings.FIRST_SUPERUSER_PASSWORD,
+@pytest.fixture(scope="session")
+async def get_superuser_token_headers(session) -> dict:
+    response = session.post(
+        test_settings.TOKEN_URL,
+        data={
+            "username": 'dev@test.com',
+            "password": '666',
+        }
+    )
+    access_token = response.json()["access_token"]
+    return {
+        'Authorization': f'Bearer {access_token}'
     }
-    r = client.post(f"{settings.API_V1_STR}/login/access-token", data=login_data)
-    tokens = r.json()
-    a_token = tokens["access_token"]
-    headers = {"Authorization": f"Bearer {a_token}"}
-    return headers

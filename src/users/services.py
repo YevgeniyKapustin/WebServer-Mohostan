@@ -7,7 +7,7 @@ from starlette.status import HTTP_401_UNAUTHORIZED, HTTP_200_OK
 
 from src.database import get_async_session
 from src.services import execute_first_object
-from src.config import Settings
+from src.config import settings
 from src.users.models import User
 from src.users.utils import get_string_hash, verify_password
 from src.users.schemas import UserCreate
@@ -55,7 +55,7 @@ async def authenticate_user(
 
 async def get_current_user_by_token(
     session: AsyncSession = Depends(get_async_session),
-    token: str = Depends(OAuth2PasswordBearer(tokenUrl=Settings().TOKEN_URL))
+    token: str = Depends(OAuth2PasswordBearer(tokenUrl=settings.TOKEN_URL))
 
 ) -> User | None:
     credentials_exception = HTTPException(
@@ -65,7 +65,7 @@ async def get_current_user_by_token(
 
     try:
         payload = jwt.decode(
-            token, Settings().SECRET_KEY, algorithms=[Settings().JWT_ALGORITHM]
+            token, settings.SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
         )
         email: str = payload.get("sub")
 

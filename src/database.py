@@ -7,12 +7,12 @@ from sqlalchemy.ext.asyncio import (
 from sqlalchemy.orm import declarative_base, DeclarativeMeta
 from sqlalchemy.pool import NullPool
 
-from src.config import Settings
+from src.config import settings
 
 Base: DeclarativeMeta = declarative_base()
 
 engine: AsyncEngine = create_async_engine(
-    Settings().POSTGRES_URL, poolclass=NullPool
+    settings.POSTGRES_URL, poolclass=NullPool
 )
 async_session_maker = async_sessionmaker(engine, expire_on_commit=False)
 

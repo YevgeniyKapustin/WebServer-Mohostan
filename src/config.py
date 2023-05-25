@@ -3,17 +3,9 @@ from pydantic import BaseSettings, PostgresDsn
 
 
 class Settings(BaseSettings):
-    __instance = None
-
-    def __new__(cls, *args, **kwargs):
-        if not cls.__instance:
-            cls.__instance = super().__new__(cls)
-        return cls.__instance
-
-    def __init__(self):
-        super().__init__()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.POSTGRES_URL: str = self.__get_postgres_dsn('async_fallback=True')
-        self.TEST_POSTGRES_URL: str = self.__get_postgres_dsn()
 
     # Postgres
     POSTGRES_USER: str
@@ -23,19 +15,11 @@ class Settings(BaseSettings):
     POSTGRES_DB: str
     POSTGRES_URL: str = None
 
-    # Test Postgres
-    TEST_POSTGRES_USER: str
-    TEST_POSTGRES_PASSWORD: str
-    TEST_POSTGRES_HOST: str
-    TEST_POSTGRES_PORT: str
-    TEST_POSTGRES_DB: str
-    TEST_POSTGRES_URL: str = None
-
     # JWT Token
+    TOKEN_URL: str
     SECRET_KEY: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
     JWT_ALGORITHM: str
-    TOKEN_URL: str = 'api/v1/auth/login'
 
     def __get_postgres_dsn(self, query: str | None = None) -> str:
         return PostgresDsn.build(
@@ -51,3 +35,6 @@ class Settings(BaseSettings):
     class Config:
         env_file = '../.env'
         env_file_encoding = 'utf-8'
+
+
+settings = Settings()
