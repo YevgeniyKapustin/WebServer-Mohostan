@@ -4,12 +4,21 @@ from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import (
     AsyncSession, create_async_engine, AsyncEngine, async_sessionmaker
 )
-from sqlalchemy.orm import declarative_base, DeclarativeMeta
+from sqlalchemy.orm import as_declarative, declared_attr
 from sqlalchemy.pool import NullPool
 
 from src.config import settings
 
-Base: DeclarativeMeta = declarative_base()
+
+@as_declarative()
+class Base:
+    id: int
+    __name__: str
+
+    @declared_attr
+    def __tablename__(self) -> str:
+        return self.__name__.lower()
+
 
 engine: AsyncEngine = create_async_engine(
     settings.POSTGRES_URL, poolclass=NullPool
