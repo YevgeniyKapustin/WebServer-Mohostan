@@ -1,4 +1,4 @@
 #!/bin/bash
 
 cd tests || exit
-pytest .
+pytest --cov=src
