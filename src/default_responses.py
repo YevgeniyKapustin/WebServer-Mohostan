@@ -2,7 +2,7 @@ from starlette.status import (
     HTTP_200_OK, HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 )
 
-from schemas import (
+from src.schemas import (
     OkScheme, CreateScheme, BadRequestScheme, NotFoundScheme
 )
 
