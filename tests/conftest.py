@@ -35,7 +35,7 @@ app.dependency_overrides[get_async_session] = override_get_async_session
 async def prepare_database():
     """Создает таблицы при прогоне тестов и удаляет при завершении."""
     async with test_engin.begin() as conn:
-        # await conn.run_sync(Base.metadata.create_all)
+        await conn.run_sync(Base.metadata.create_all)
         create_super_user()
     yield
     async with test_engin.begin() as conn:
@@ -70,15 +70,15 @@ async def async_session() -> AsyncGenerator[AsyncClient, None]:
 
 
 @pytest.fixture(scope="session")
-async def get_superuser_token_headers(session) -> dict:
-    response = session.post(
+async def get_superuser_token_headers(async_session: AsyncClient, ) -> dict:
+    response = await async_session.post(
         test_settings.TOKEN_URL,
         data={
             "username": 'dev@test.com',
             "password": '666',
         }
     )
-    access_token = response.json()["access_token"]
+    access_token = response.json()['access_token']
     return {
         'Authorization': f'Bearer {access_token}'
     }
