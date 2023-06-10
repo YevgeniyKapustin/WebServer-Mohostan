@@ -9,7 +9,7 @@ class BaseObjectCRUD(ABC):
         """Создание объекта в базе данных."""
 
     @abstractmethod
-    async def read(self, session: AsyncSession) -> object:
+    async def read(self, session: AsyncSession) -> list[object]:
         """Чтение объекта из базы данных."""
 
     @abstractmethod

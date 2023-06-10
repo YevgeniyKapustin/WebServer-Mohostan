@@ -8,6 +8,10 @@ class CommandScheme(BaseModel):
     response: str
 
 
+class CommandsScheme(BaseModel):
+    data: list = [CommandScheme]
+
+
 class CommandCreateScheme(BaseModel):
     type: str
     request: str

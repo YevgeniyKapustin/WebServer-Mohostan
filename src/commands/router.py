@@ -4,7 +4,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import JSONResponse
 
 from src.database import get_async_session
-from src.commands.models import Command
 from src.commands.schemas import CommandScheme, CommandCreateScheme
 from src.commands.services import CommandCRUD
 from src.default_responses import (
@@ -12,7 +11,7 @@ from src.default_responses import (
     get_delete_response
 )
 from src.services import (
-    update_object, delete_object, create_object, get_object
+    update_object, delete_object, create_object, get_objects
 )
 
 router = APIRouter(
@@ -22,27 +21,26 @@ router = APIRouter(
 
 
 @router.get(
-    '/{id}',
+    '/',
     name='Возвращает информацию о команде',
+    description='''
+    Предоставляет список команд по запросу.
+    ''',
     responses=get_get_response(CommandScheme)
 )
 @cache(expire=60)
 async def get_command(
-        id_: int,
+        command_type: str | None = None,
+        request_: str | None = None,
 
         session: AsyncSession = Depends(get_async_session),
 
 ) -> JSONResponse:
+    crud: CommandCRUD = CommandCRUD(
+        type_=command_type, request=request_
+    )
 
-    model: Command = await CommandCRUD(id_).read(session)
-    scheme = CommandScheme(
-        id=model.id,
-        type_id=model.type_id,
-        request=model.request,
-        response=model.response
-    ) if hasattr(model, 'id') else ...
-
-    return await get_object(model, scheme)
+    return await get_objects(crud, CommandScheme, session)
 
 
 @router.post(
@@ -56,7 +54,6 @@ async def create_command(
         session: AsyncSession = Depends(get_async_session),
 
 ) -> JSONResponse:
-
     obj = CommandCRUD(
         type_=command.type,
         request=command.request,
@@ -77,7 +74,6 @@ async def update_command(
         session: AsyncSession = Depends(get_async_session),
 
 ) -> JSONResponse:
-
     original_obj = CommandCRUD(id_=id_)
     new_obj = CommandCRUD(
         type_=new_command.type,
@@ -100,6 +96,5 @@ async def delete_type(
         session: AsyncSession = Depends(get_async_session),
 
 ) -> JSONResponse:
-
     obj = CommandCRUD(command_id)
     return await delete_object(obj, session)

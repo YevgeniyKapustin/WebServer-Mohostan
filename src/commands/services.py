@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.services import execute_first_object
+from src.services import execute_all_objects
 from src.crud import BaseObjectCRUD
 from src.commands.models import Command
 
@@ -18,7 +18,7 @@ class CommandCRUD(BaseObjectCRUD):
             id_: int = None,
             type_: str = None,
             request: str = None,
-            response: str = None
+            response: str = None,
     ):
         self.__id: int = id_
         self.__type: str = type_
@@ -27,34 +27,48 @@ class CommandCRUD(BaseObjectCRUD):
 
     async def create(self, session) -> bool:
         """Создание объекта в базе данных."""
-        session.add(
-            Command(
-                type=self.__type,
-                request=self.__request,
-                response=self.__response,
+        if self.__type and self.__request and self.__response:
+            session.add(
+                Command(
+                    type=self.__type,
+                    request=self.__request,
+                    response=self.__response,
+                )
             )
-        )
-        return True
+            return True
+        return False
 
-    async def read(self, session: AsyncSession) -> Command | None:
+    async def read(self, session: AsyncSession) -> list[Command] | None:
         """Чтение объекта из базы данных."""
-        if self.__id:
-            query = (
-                select(Command).
-                where(Command.id == self.__id)
-            )
-            return await execute_first_object(session, query)
-
-        elif self.__request and self.__type and self.__response:
+        if self.__type and self.__request:
             query = (
                 select(Command).
                 where(
                     Command.request == self.__request,
                     Command.type == self.__type,
-                    Command.response == self.__response,
                 )
             )
-            return await execute_first_object(session, query)
+            return await execute_all_objects(session, query)
+
+        elif self.__type:
+            query = (
+                select(Command).
+                where(
+                    Command.type == self.__type,
+                )
+            )
+            return await execute_all_objects(session, query)
+
+        elif self.__request:
+            query = (
+                select(Command).
+                where(
+                    Command.request == self.__request,
+                )
+            )
+            return await execute_all_objects(session, query)
+
+        return None
 
     async def update(self, new_obj: dict, session: AsyncSession) -> bool:
         """Обновление объекта в базы данных."""

@@ -11,7 +11,7 @@ from src.json_responses import (
 from src.crud import BaseObjectCRUD
 
 
-async def get_object(
+async def get_single_object(
         model: Base,
         scheme: BaseModel,
 ) -> JSONResponse:
@@ -20,6 +20,31 @@ async def get_object(
             content=scheme.dict(),
             status_code=HTTP_200_OK,
         )
+    else:
+        return NotFoundJSONResponse
+
+
+async def get_objects(
+        model: BaseObjectCRUD,
+        scheme: BaseModel,
+        session: AsyncSession
+
+) -> JSONResponse:
+
+    if obj_list := await model.read(session):
+
+        response_scheme = [
+            {
+                attr: eval(f'lambda obj, attr: obj.{attr}')(obj, attr)
+                for attr in scheme.schema().get('properties')
+            }
+            for obj in obj_list
+        ]
+        return JSONResponse(
+            content=response_scheme,
+            status_code=HTTP_200_OK,
+        )
+
     else:
         return NotFoundJSONResponse
 
@@ -78,3 +103,8 @@ async def delete_object(
 async def execute_first_object(session, query):
     result = await session.execute(query)
     return result.scalars().first()
+
+
+async def execute_all_objects(session, query):
+    result = await session.execute(query)
+    return result.scalars().all()
