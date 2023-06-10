@@ -12,7 +12,6 @@ from src.config import settings
 
 @as_declarative()
 class Base:
-    id: int
     __name__: str
 
     @declared_attr

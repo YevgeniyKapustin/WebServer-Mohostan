@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import JSONResponse
 from starlette.status import HTTP_200_OK
 
@@ -10,7 +11,10 @@ from src.json_responses import (
 from src.crud import BaseObjectCRUD
 
 
-async def get_object(model: Base, scheme: BaseModel) -> JSONResponse:
+async def get_object(
+        model: Base,
+        scheme: BaseModel,
+) -> JSONResponse:
     if model:
         return JSONResponse(
             content=scheme.dict(),
@@ -20,31 +24,37 @@ async def get_object(model: Base, scheme: BaseModel) -> JSONResponse:
         return NotFoundJSONResponse
 
 
-async def create_object(obj: BaseObjectCRUD) -> JSONResponse:
-    if await obj.read():
+async def create_object(
+        obj: BaseObjectCRUD,
+        session: AsyncSession
+) -> JSONResponse:
+    if await obj.read(session):
         return OkJSONResponse
 
     else:
-        await obj.create()
+        await obj.create(session)
+        await session.commit()
         return CreateJSONResponse
 
 
 async def update_object(
         original_obj: BaseObjectCRUD,
         new_obj: BaseObjectCRUD,
-        data_for_update: dict
-
+        data_for_update: dict,
+        session: AsyncSession
 ) -> JSONResponse:
-    if await original_obj.read():
+    if await original_obj.read(session):
 
-        if await new_obj.read() is None:
+        if await new_obj.read(session) is None:
 
-            if await original_obj.read() != await new_obj.read():
-                await original_obj.update(data_for_update)
+            if await original_obj.read(session) != await new_obj.read(session):
+                await original_obj.update(data_for_update, session)
+                await session.commit()
                 return OkJSONResponse
 
             else:
-                await original_obj.create()
+                await original_obj.create(session)
+                await session.commit()
                 return CreateJSONResponse
         else:
             return BadRequestJSONResponse
@@ -52,9 +62,13 @@ async def update_object(
         return NotFoundJSONResponse
 
 
-async def delete_object(obj: BaseObjectCRUD) -> JSONResponse:
-    if await obj.read():
-        await obj.delete()
+async def delete_object(
+        obj: BaseObjectCRUD,
+        session: AsyncSession
+) -> JSONResponse:
+    if await obj.read(session):
+        await obj.delete(session)
+        await session.commit()
         return OkJSONResponse
 
     else:

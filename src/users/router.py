@@ -6,11 +6,13 @@ from fastapi import HTTPException
 from fastapi import status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
-from starlette.status import HTTP_200_OK, HTTP_201_CREATED
+from starlette.status import (
+    HTTP_200_OK, HTTP_201_CREATED, HTTP_400_BAD_REQUEST
+)
 
 from src.database import get_async_session
 from src.json_responses import CreateJSONResponse
-from src.schemas import CreateScheme, OkScheme
+from src.schemas import CreateScheme, OkScheme, BadRequestScheme
 from src.config import settings
 from src.users import schemas
 from src.users.services import authenticate_user, create_user
@@ -31,6 +33,10 @@ router = APIRouter(
         HTTP_200_OK: {
             'model': OkScheme,
             'description': 'Токен получен',
+        },
+        HTTP_400_BAD_REQUEST: {
+            'model': BadRequestScheme,
+            'description': 'Неверный email или пароль',
         }
     }
 )

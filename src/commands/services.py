@@ -4,83 +4,73 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.services import execute_first_object
 from src.crud import BaseObjectCRUD
 from src.commands.models import Command
-from src.types.services import TypeCRUD
-from src.types.models import Type
 
 
 class CommandCRUD(BaseObjectCRUD):
     """Класс описывающий поведение команд."""
-    __session: AsyncSession
     __id: int | None
-    __type: Type | None
+    __type: str | None
     __request: str | None
     __response: str | None
 
     def __init__(
             self,
-            session: AsyncSession,
-            id: int = None,
-            type_: Type = None,
+            id_: int = None,
+            type_: str = None,
             request: str = None,
             response: str = None
     ):
-        self.__session: AsyncSession = session
-        self.__id: int = id
-        self.__type: Type = type_
+        self.__id: int = id_
+        self.__type: str = type_
         self.__request: str = request
         self.__response: str = response
 
-    async def create(self) -> bool:
+    async def create(self, session) -> bool:
         """Создание объекта в базе данных."""
-        self.__session.add(
+        session.add(
             Command(
-                type_id=self.__type.id,
+                type=self.__type,
                 request=self.__request,
                 response=self.__response,
             )
         )
-        await self.__session.commit()
         return True
 
-    async def read(self) -> Command | None:
+    async def read(self, session: AsyncSession) -> Command | None:
         """Чтение объекта из базы данных."""
         if self.__id:
             query = (
                 select(Command).
                 where(Command.id == self.__id)
             )
-            return await execute_first_object(self.__session, query)
+            return await execute_first_object(session, query)
 
         elif self.__request and self.__type and self.__response:
             query = (
                 select(Command).
                 where(
                     Command.request == self.__request,
-                    Command.type_id == self.__type.id,
+                    Command.type == self.__type,
                     Command.response == self.__response,
                 )
             )
-            return await execute_first_object(self.__session, query)
+            return await execute_first_object(session, query)
 
-    async def update(self, new_obj: dict) -> bool:
+    async def update(self, new_obj: dict, session: AsyncSession) -> bool:
         """Обновление объекта в базы данных."""
         self.__request = new_obj.get('request')
         self.__response = new_obj.get('response')
-        self.__type = await TypeCRUD(
-            self.__session, id=new_obj.get('type_id')
-        ).read()
+        self.__type = new_obj.get('type')
 
-        obj = await self.read()
-        obj.type_id = self.__type.id,
+        obj = await self.read(session)
+        obj.type = self.__type,
         obj.request = self.__request,
         obj.response = self.__response,
 
-        self.__session.add(obj)
-        await self.__session.commit()
+        session.add(obj)
         return True
 
-    async def delete(self) -> bool:
+    async def delete(self, session: AsyncSession) -> bool:
         """Удаление объекта из базы данных."""
-        await self.__session.delete(await self.read())
-        await self.__session.commit()
+        await session.delete(await self.read(session))
         return True

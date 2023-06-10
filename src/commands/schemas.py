@@ -3,12 +3,12 @@ from pydantic import BaseModel
 
 class CommandScheme(BaseModel):
     id: int
-    type_id: int
+    type: str
     request: str
     response: str
 
 
 class CommandCreateScheme(BaseModel):
-    type_id: int
+    type: str
     request: str
     response: str
