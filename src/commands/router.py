@@ -10,7 +10,7 @@ from src.default_responses import (
     get_get_response, get_update_response, get_create_response,
     get_delete_response
 )
-from src.services import (
+from src.utils import (
     update_object, delete_object, create_object, get_objects
 )
 

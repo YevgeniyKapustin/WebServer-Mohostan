@@ -1,12 +1,12 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.services import execute_all_objects
-from src.crud import BaseObjectCRUD
+from src.utils import execute_all_objects
+from src.crud import BaseCRUD
 from src.commands.models import Command
 
 
-class CommandCRUD(BaseObjectCRUD):
+class CommandCRUD(BaseCRUD):
     """Класс описывающий поведение команд."""
     __id: int | None
     __type: str | None

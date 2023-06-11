@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.status import HTTP_401_UNAUTHORIZED, HTTP_200_OK
 
 from src.database import get_async_session
-from src.services import execute_first_object
+from src.utils import execute_first_object
 from src.config import settings
 from src.users.models import User
 from src.users.utils import get_string_hash, verify_password
@@ -58,6 +58,7 @@ async def get_current_user_by_token(
     token: str = Depends(OAuth2PasswordBearer(tokenUrl=settings.TOKEN_URL))
 
 ) -> User | None:
+    """Получить юзера по токену."""
     credentials_exception = HTTPException(
         status_code=HTTP_401_UNAUTHORIZED,
         detail='Вы не авторизованы',
@@ -75,7 +76,7 @@ async def get_current_user_by_token(
     except jwt.DecodeError:
         raise credentials_exception
 
-    user = await get_user_by_email(session, email=email)
+    user: User = await get_user_by_email(session, email=email)
 
     if user is None:
         raise credentials_exception

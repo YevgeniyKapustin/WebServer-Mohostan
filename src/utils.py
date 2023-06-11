@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from sqlalchemy import Select, Sequence
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import JSONResponse
 from starlette.status import HTTP_200_OK
@@ -8,13 +9,14 @@ from src.json_responses import (
     OkJSONResponse, CreateJSONResponse, NotFoundJSONResponse,
     BadRequestJSONResponse
 )
-from src.crud import BaseObjectCRUD
+from src.crud import BaseCRUD
 
 
 async def get_single_object(
         model: Base,
         scheme: BaseModel,
 ) -> JSONResponse:
+    """Возвращает один объект из модели по схеме."""
     if model:
         return JSONResponse(
             content=scheme.dict(),
@@ -25,12 +27,12 @@ async def get_single_object(
 
 
 async def get_objects(
-        model: BaseObjectCRUD,
+        model: BaseCRUD,
         scheme: BaseModel,
         session: AsyncSession
 
 ) -> JSONResponse:
-
+    """Возвращает список объектов из crud объекта по схеме."""
     if obj_list := await model.read(session):
 
         response: list[dict] = [
@@ -50,9 +52,10 @@ async def get_objects(
 
 
 async def create_object(
-        obj: BaseObjectCRUD,
+        obj: BaseCRUD,
         session: AsyncSession
 ) -> JSONResponse:
+    """Создает объект в базе из crud объекта."""
     if await obj.read(session):
         return OkJSONResponse
 
@@ -63,11 +66,12 @@ async def create_object(
 
 
 async def update_object(
-        original_obj: BaseObjectCRUD,
-        new_obj: BaseObjectCRUD,
+        original_obj: BaseCRUD,
+        new_obj: BaseCRUD,
         data_for_update: dict,
         session: AsyncSession
 ) -> JSONResponse:
+    """Обновляет original_obj с помощью data_for_update."""
     if await original_obj.read(session):
 
         if await new_obj.read(session) is None:
@@ -88,9 +92,10 @@ async def update_object(
 
 
 async def delete_object(
-        obj: BaseObjectCRUD,
+        obj: BaseCRUD,
         session: AsyncSession
 ) -> JSONResponse:
+    """Удаляет объект crud из базы."""
     if await obj.read(session):
         await obj.delete(session)
         await session.commit()
@@ -100,11 +105,19 @@ async def delete_object(
         return NotFoundJSONResponse
 
 
-async def execute_first_object(session, query):
+async def execute_first_object(
+        session: AsyncSession,
+        query: Select
+) -> Base:
+    """Достает один объект из сессии."""
     result = await session.execute(query)
     return result.scalars().first()
 
 
-async def execute_all_objects(session, query):
+async def execute_all_objects(
+        session: AsyncSession,
+        query: Select
+) -> Sequence:
+    """Достает список объектов из сессии."""
     result = await session.execute(query)
     return result.scalars().all()

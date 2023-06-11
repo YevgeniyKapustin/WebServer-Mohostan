@@ -1,4 +1,3 @@
-"""Стандартные схемы для HTTP ответов."""
 from pydantic import BaseModel
 
 

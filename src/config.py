@@ -2,6 +2,7 @@ from pydantic import BaseSettings, PostgresDsn
 
 
 class Settings(BaseSettings):
+    """Конфиг приложения."""
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.POSTGRES_URL: str = self.__get_postgres_dsn('async_fallback=True')
