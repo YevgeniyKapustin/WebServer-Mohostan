@@ -33,15 +33,15 @@ async def get_objects(
 
     if obj_list := await model.read(session):
 
-        response_scheme = [
+        response: list[dict] = [
             {
-                attr: eval(f'lambda obj, attr: obj.{attr}')(obj, attr)
+                attr: getattr(obj, attr)
                 for attr in scheme.schema().get('properties')
             }
             for obj in obj_list
         ]
         return JSONResponse(
-            content=response_scheme,
+            content=response,
             status_code=HTTP_200_OK,
         )
 
