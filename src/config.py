@@ -1,4 +1,3 @@
-"""Модуль для сбора переменных окружения и переменных конфигурации"""
 from pydantic import BaseSettings, PostgresDsn
 
 
@@ -20,6 +19,9 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
     JWT_ALGORITHM: str
+
+    # CORS
+    ORIGINS: list[str]
 
     def __get_postgres_dsn(self, query: str | None = None) -> str:
         return PostgresDsn.build(

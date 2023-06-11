@@ -3,7 +3,9 @@ from fastapi import FastAPI
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 from redis import asyncio as aioredis
+from starlette.middleware.cors import CORSMiddleware
 
+from src.config import settings
 from src.commands.router import router as command_router
 from src.users.router import router as users_router
 
@@ -13,6 +15,18 @@ app = FastAPI(
 )
 app.include_router(users_router)
 app.include_router(command_router)
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[settings.ORIGINS],
+    allow_credentials=True,
+    allow_methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allow_headers=[
+        'Access-Control-Allow-Headers', 'Access-Control-Allow-Origin',
+        'Content-Type', 'Set-Cookie', 'Authorization'
+    ],
+)
 
 
 @app.on_event('startup')
