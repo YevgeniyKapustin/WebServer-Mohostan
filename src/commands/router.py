@@ -6,7 +6,7 @@ from starlette.responses import JSONResponse
 from src.database import get_async_session
 from src.commands.schemas import CommandScheme, CommandCreateScheme
 from src.commands.services import CommandCRUD
-from src.default_responses import (
+from src.default_res import (
     get_get_response, get_update_response, get_create_response,
     get_delete_response
 )

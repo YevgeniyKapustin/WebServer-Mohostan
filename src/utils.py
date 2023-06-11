@@ -5,7 +5,7 @@ from starlette.responses import JSONResponse
 from starlette.status import HTTP_200_OK
 
 from src.database import Base
-from src.json_responses import (
+from src.json_res import (
     OkJSONResponse, CreateJSONResponse, NotFoundJSONResponse,
     BadRequestJSONResponse
 )

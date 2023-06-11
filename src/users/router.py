@@ -11,7 +11,7 @@ from starlette.status import (
 )
 
 from src.database import get_async_session
-from src.json_responses import CreateJSONResponse
+from src.json_res import CreateJSONResponse
 from src.schemas import CreateScheme, OkScheme, BadRequestScheme
 from src.config import settings
 from src.users import schemas
