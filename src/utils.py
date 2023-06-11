@@ -4,12 +4,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import JSONResponse
 from starlette.status import HTTP_200_OK
 
-from src.database import Base
-from src.json_res import (
-    OkJSONResponse, CreateJSONResponse, NotFoundJSONResponse,
+from src.constants import (
+    NotFoundJSONResponse, OkJSONResponse, CreateJSONResponse,
     BadRequestJSONResponse
 )
-from src.crud import BaseCRUD
+from src.database import Base
+from src.service import BaseCRUD
 
 
 async def get_single_object(

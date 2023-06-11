@@ -2,7 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.utils import execute_all_objects
-from src.crud import BaseCRUD
+from src.service import BaseCRUD
 from src.commands.models import Command
 
 

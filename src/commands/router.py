@@ -3,13 +3,13 @@ from fastapi_cache.decorator import cache
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import JSONResponse
 
+from src.constants import (
+    get_get_response, get_create_response, get_update_response,
+    get_delete_response
+)
 from src.database import get_async_session
 from src.commands.schemas import CommandScheme, CommandCreateScheme
 from src.commands.services import CommandCRUD
-from src.default_res import (
-    get_get_response, get_update_response, get_create_response,
-    get_delete_response
-)
 from src.utils import (
     update_object, delete_object, create_object, get_objects
 )

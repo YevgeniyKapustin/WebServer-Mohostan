@@ -10,8 +10,8 @@ from starlette.status import (
     HTTP_200_OK, HTTP_201_CREATED, HTTP_400_BAD_REQUEST
 )
 
+from src.constants import CreateJSONResponse
 from src.database import get_async_session
-from src.json_res import CreateJSONResponse
 from src.schemas import CreateScheme, OkScheme, BadRequestScheme
 from src.config import settings
 from src.users import schemas
