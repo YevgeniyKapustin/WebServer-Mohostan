@@ -20,7 +20,7 @@ from src.users.utils import create_access_token
 
 router = APIRouter(
     prefix='/api/v1/auth',
-    tags=['Аутентификация'],
+    tags=['Пользователи'],
 )
 
 
