@@ -47,20 +47,20 @@ tz = ["python-dateutil"]
 
 [[package]]
 name = "anyio"
-version = "3.6.2"
+version = "3.7.0"
 description = "High level compatibility layer for multiple asynchronous event loop implementations"
 category = "main"
 optional = false
-python-versions = ">=3.6.2"
+python-versions = ">=3.7"
 
 [package.dependencies]
 idna = ">=2.8"
 sniffio = ">=1.1"
 
 [package.extras]
-doc = ["packaging", "sphinx-rtd-theme", "sphinx-autodoc-typehints (>=1.2.0)"]
-test = ["coverage[toml] (>=4.5)", "hypothesis (>=4.0)", "pytest (>=7.0)", "pytest-mock (>=3.6.1)", "trustme", "contextlib2", "uvloop (<0.15)", "mock (>=4)", "uvloop (>=0.15)"]
-trio = ["trio (>=0.16,<0.22)"]
+doc = ["packaging", "Sphinx (>=6.1.0)", "sphinx-rtd-theme", "sphinxcontrib-jquery", "sphinx-autodoc-typehints (>=1.2.0)"]
+test = ["anyio", "coverage[toml] (>=4.5)", "hypothesis (>=4.0)", "psutil (>=5.9)", "pytest (>=7.0)", "pytest-mock (>=3.6.1)", "trustme", "uvloop (>=0.17)", "mock (>=4)"]
+trio = ["trio (<0.22)"]
 
 [[package]]
 name = "async-timeout"
@@ -135,7 +135,7 @@ python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,!=3.6.*,>=2.7
 
 [[package]]
 name = "coverage"
-version = "7.2.6"
+version = "7.2.7"
 description = "Code coverage measurement for Python"
 category = "dev"
 optional = false
@@ -296,7 +296,7 @@ testing = ["pytest"]
 
 [[package]]
 name = "markupsafe"
-version = "2.1.2"
+version = "2.1.3"
 description = "Safely add untrusted strings to HTML/XML markup."
 category = "main"
 optional = false
@@ -358,7 +358,7 @@ testing = ["pytest", "pytest-benchmark"]
 
 [[package]]
 name = "pydantic"
-version = "1.10.8"
+version = "1.10.9"
 description = "Data validation and settings management using python type hints"
 category = "main"
 optional = false
@@ -387,7 +387,7 @@ tests = ["pytest (>=6.0.0,<7.0.0)", "coverage[toml] (==5.0.4)"]
 
 [[package]]
 name = "pytest"
-version = "7.3.1"
+version = "7.3.2"
 description = "pytest: simple powerful testing with Python"
 category = "dev"
 optional = false
@@ -400,7 +400,7 @@ packaging = "*"
 pluggy = ">=0.12,<2.0"
 
 [package.extras]
-testing = ["argcomplete", "attrs (>=19.2.0)", "hypothesis (>=3.56)", "mock", "nose", "pygments (>=2.7.2)", "requests", "xmlschema"]
+testing = ["argcomplete", "attrs (>=19.2.0)", "hypothesis (>=3.56)", "mock", "nose", "pygments (>=2.7.2)", "requests", "setuptools", "xmlschema"]
 
 [[package]]
 name = "pytest-asyncio"
@@ -506,7 +506,7 @@ python-versions = ">=3.7"
 
 [[package]]
 name = "sqlalchemy"
-version = "2.0.15"
+version = "2.0.16"
 description = "Database Abstraction Library"
 category = "main"
 optional = false
@@ -536,6 +536,7 @@ postgresql_pg8000 = ["pg8000 (>=1.29.1)"]
 postgresql_psycopg = ["psycopg (>=3.0.7)"]
 postgresql_psycopg2binary = ["psycopg2-binary"]
 postgresql_psycopg2cffi = ["psycopg2cffi"]
+postgresql_psycopgbinary = ["psycopg[binary] (>=3.0.7)"]
 pymysql = ["pymysql"]
 sqlcipher = ["sqlcipher3-binary"]
 
@@ -555,7 +556,7 @@ full = ["httpx (>=0.22.0)", "itsdangerous", "jinja2", "python-multipart", "pyyam
 
 [[package]]
 name = "typing-extensions"
-version = "4.6.2"
+version = "4.6.3"
 description = "Backported and Experimental Type Hints for Python 3.7+"
 category = "main"
 optional = false
