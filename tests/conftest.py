@@ -1,5 +1,7 @@
 import asyncio
+from functools import wraps
 from typing import AsyncGenerator
+from unittest import mock
 
 import pytest
 from httpx import AsyncClient
@@ -10,7 +12,6 @@ from sqlalchemy.pool import NullPool
 
 from src.config import Settings
 from src.database import get_async_session, Base
-from src.main import app
 from src.users.models import User
 
 # устанавливаем .env для тестов
@@ -27,6 +28,18 @@ async def override_get_async_session() -> AsyncGenerator[AsyncSession, None]:
         yield session
 
 
+def mock_cache(*args, **kwargs):
+    def wrapper(func):
+        @wraps(func)
+        async def inner(*args, **kwargs):
+            return await func(*args, **kwargs)
+        return inner
+    return wrapper
+
+
+# имитируем работу кеша
+mock.patch("fastapi_cache.decorator.cache", mock_cache).start()
+from src.main import app  # должно быть позже мока кеша
 # переписываем зависимость сессии, чтобы использовался наш создатель сессии
 app.dependency_overrides[get_async_session] = override_get_async_session
 
@@ -42,6 +55,20 @@ async def prepare_database():
         await conn.run_sync(Base.metadata.drop_all)
 
 
+@pytest.fixture(scope="session")
+async def async_session() -> AsyncGenerator[AsyncClient, None]:
+    async with AsyncClient(app=app, base_url="http://test") as async_session:
+        yield async_session
+
+
+@pytest.fixture(scope='session')
+def event_loop(request):
+    """Create an instance of the default event loop for each test case."""
+    loop = asyncio.get_event_loop_policy().new_event_loop()
+    yield loop
+    loop.close()
+
+
 async def create_super_user():
     async with async_session_maker() as session:
         obj = User(
@@ -53,32 +80,3 @@ async def create_super_user():
         session.add(obj)
         await session.commit()
         yield
-
-
-@pytest.fixture(scope='session')
-def event_loop(request):
-    """Create an instance of the default event loop for each test case."""
-    loop = asyncio.get_event_loop_policy().new_event_loop()
-    yield loop
-    loop.close()
-
-
-@pytest.fixture(scope="session")
-async def async_session() -> AsyncGenerator[AsyncClient, None]:
-    async with AsyncClient(app=app, base_url="http://test") as async_session:
-        yield async_session
-
-
-@pytest.fixture(scope="session")
-async def get_superuser_token_headers(async_session: AsyncClient, ) -> dict:
-    response = await async_session.post(
-        test_settings.TOKEN_URL,
-        data={
-            "username": 'dev@test.com',
-            "password": '666',
-        }
-    )
-    access_token = response.json()['access_token']
-    return {
-        'Authorization': f'Bearer {access_token}'
-    }

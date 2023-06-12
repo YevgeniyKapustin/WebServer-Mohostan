@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import select, Sequence
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.utils import execute_all_objects
@@ -38,7 +38,7 @@ class CommandCRUD(BaseCRUD):
             return True
         return False
 
-    async def read(self, session: AsyncSession) -> list[Command] | None:
+    async def read(self, session: AsyncSession) -> list | None:
         """Чтение объекта из базы данных."""
         if self.__type and self.__request:
             query = (
@@ -68,6 +68,16 @@ class CommandCRUD(BaseCRUD):
             )
             return await execute_all_objects(session, query)
 
+        elif self.__id:
+            query = (
+                select(Command).
+                where(
+
+                    Command.id == self.__id,
+                )
+            )
+            return await execute_all_objects(session, query)
+
         return None
 
     async def update(self, new_obj: dict, session: AsyncSession) -> bool:
@@ -76,15 +86,17 @@ class CommandCRUD(BaseCRUD):
         self.__response = new_obj.get('response')
         self.__type = new_obj.get('type')
 
-        obj = await self.read(session)
-        obj.type = self.__type,
-        obj.request = self.__request,
-        obj.response = self.__response,
+        obj = (await self.read(session))
+        if obj:
+            obj.type = self.__type,
+            obj.request = self.__request,
+            obj.response = self.__response,
 
-        session.add(obj)
-        return True
+            session.add(obj)
+            return True
+        return False
 
     async def delete(self, session: AsyncSession) -> bool:
         """Удаление объекта из базы данных."""
-        await session.delete(await self.read(session))
+        [await session.delete(obj) for obj in await self.read(session)]
         return True

@@ -13,6 +13,6 @@ class CommandsScheme(BaseModel):
 
 
 class CommandCreateScheme(BaseModel):
-    type: str
-    request: str
-    response: str
+    type: str | None
+    request: str | None
+    response: str | None

@@ -72,11 +72,14 @@ async def update_object(
         session: AsyncSession
 ) -> JSONResponse:
     """Обновляет original_obj с помощью data_for_update."""
-    if await original_obj.read(session):
+    original_obj_orm = await original_obj.read(session)
+    new_obj_orm = await new_obj.read(session)
 
-        if await new_obj.read(session) is None:
+    if original_obj_orm:
 
-            if await original_obj.read(session) != await new_obj.read(session):
+        if not new_obj_orm:
+
+            if original_obj_orm != new_obj_orm:
                 await original_obj.update(data_for_update, session)
                 await session.commit()
                 return OkJSONResponse
@@ -117,7 +120,7 @@ async def execute_first_object(
 async def execute_all_objects(
         session: AsyncSession,
         query: Select
-) -> Sequence:
+) -> list:
     """Достает список объектов из сессии."""
     result = await session.execute(query)
-    return result.scalars().all()
+    return list(result.scalars().all())
