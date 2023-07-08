@@ -19,7 +19,7 @@ passlib = "^1.7.4"
 PyJWT = "^2.6.0"
 python-dotenv = "^1.0.0"
 python-multipart = "^0.0.6"
-
+aiofiles = "^23.1.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.3.1"

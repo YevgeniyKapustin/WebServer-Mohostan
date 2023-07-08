@@ -4,7 +4,9 @@ services:
   db:
     image: postgres:15
     env_file:
-      - docker.env
+      - .env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
 
@@ -14,6 +16,9 @@ services:
     depends_on:
       - db
     env_file:
-      - docker.env
+      - .env
     ports:
       - '8000:8000'
+
+volumes:
+  pgdata:

@@ -1,4 +1,4 @@
-from sqlalchemy import select, Sequence
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.utils import execute_all_objects
@@ -72,7 +72,6 @@ class CommandCRUD(BaseCRUD):
             query = (
                 select(Command).
                 where(
-
                     Command.id == self.__id,
                 )
             )

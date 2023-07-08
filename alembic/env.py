@@ -8,6 +8,7 @@ from src.config import settings
 from src.database import Base
 from src.users import models
 from src.commands import models
+from src.videos import models
 
 config = context.config
 
