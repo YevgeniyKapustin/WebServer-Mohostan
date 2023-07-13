@@ -2,6 +2,7 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
+from loguru import logger
 from redis import asyncio as aioredis
 from starlette.middleware.cors import CORSMiddleware
 from starlette.staticfiles import StaticFiles
@@ -32,6 +33,9 @@ app.add_middleware(
         'Content-Type', 'Set-Cookie', 'Authorization'
     ],
 )
+
+
+logger.add('log.txt', format='{time} {level} {message}')
 
 
 @app.on_event('startup')

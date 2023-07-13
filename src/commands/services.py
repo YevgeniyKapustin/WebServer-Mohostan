@@ -1,3 +1,4 @@
+from loguru import logger
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -28,6 +29,7 @@ class CommandCRUD(BaseCRUD):
     async def create(self, session) -> bool:
         """Создание объекта в базе данных."""
         if self.__type and self.__request and self.__response:
+            logger.info(f'Создание команды "{self.__request}"...')
             session.add(
                 Command(
                     type=self.__type,
@@ -35,11 +37,19 @@ class CommandCRUD(BaseCRUD):
                     response=self.__response,
                 )
             )
+            logger.info(f'Команда "{self.__request}" создана.')
             return True
+        logger.debug(
+            f'''Для создания команды не хватает некоторых данных:
+            type: {self.__type}
+            request: {self.__request}
+            response: {self.__response}
+            ''')
         return False
 
     async def read(self, session: AsyncSession) -> list | None:
         """Чтение объекта из базы данных."""
+        query = None
         if self.__type and self.__request:
             query = (
                 select(Command).
@@ -48,7 +58,6 @@ class CommandCRUD(BaseCRUD):
                     Command.type == self.__type,
                 )
             )
-            return await execute_all_objects(session, query)
 
         elif self.__type:
             query = (
@@ -57,7 +66,6 @@ class CommandCRUD(BaseCRUD):
                     Command.type == self.__type,
                 )
             )
-            return await execute_all_objects(session, query)
 
         elif self.__request:
             query = (
@@ -66,7 +74,6 @@ class CommandCRUD(BaseCRUD):
                     Command.request == self.__request,
                 )
             )
-            return await execute_all_objects(session, query)
 
         elif self.__id:
             query = (
@@ -75,9 +82,8 @@ class CommandCRUD(BaseCRUD):
                     Command.id == self.__id,
                 )
             )
-            return await execute_all_objects(session, query)
 
-        return None
+        return await self.__execute_commands(session, query)
 
     async def update(self, new_obj: dict, session: AsyncSession) -> bool:
         """Обновление объекта в базы данных."""
@@ -97,5 +103,16 @@ class CommandCRUD(BaseCRUD):
 
     async def delete(self, session: AsyncSession) -> bool:
         """Удаление объекта из базы данных."""
+        commands = await self.read(session)
         [await session.delete(obj) for obj in await self.read(session)]
+        logger.info(f'Удалены команды {commands}.')
         return True
+
+    @staticmethod
+    async def __execute_commands(session, query) -> list | None:
+        if query:
+            commands: list = await execute_all_objects(session, query)
+            logger.info(f'Найдены команды {commands}.')
+            return commands
+        logger.info(f'Не удалось найти подходящую команду.')
+        return None

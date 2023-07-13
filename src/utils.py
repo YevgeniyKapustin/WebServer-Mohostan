@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from sqlalchemy import Select, Sequence
+from sqlalchemy import Select
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import JSONResponse
 from starlette.status import HTTP_200_OK
