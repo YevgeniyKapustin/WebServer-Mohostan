@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "webserver-mohostan"
-version = "1.0"
+version = "1.6.1"
 description = "Сервер для внутренних нужд"
 authors = ["Евгений Капустин <kapustaevg@gmail.com>"]
 license = "GPL-3.0 license"
