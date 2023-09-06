@@ -13,12 +13,17 @@ services:
   app:
     build:
       context: .
+    container_name:
+      mohostan
     depends_on:
       - db
     env_file:
       - .env
     ports:
       - '8000:8000'
+    volumes:
+      - static:/app/static
 
 volumes:
   pgdata:
+  static:

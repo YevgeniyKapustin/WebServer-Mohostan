@@ -3,3 +3,4 @@
 .pytest_cache
 .coverage
 static
+log.txt
