@@ -29,7 +29,7 @@ class VideoCRUD(BaseCRUD):
         self.__file: UploadFile = file
         self.__path: str = path
 
-    async def read(self, session: AsyncSession) -> list[object]:
+    async def read(self, session: AsyncSession) -> list:
         """Чтение объекта из базы данных."""
         query = (
             select(Video).

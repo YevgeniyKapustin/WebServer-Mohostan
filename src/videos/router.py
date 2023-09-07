@@ -38,7 +38,7 @@ async def delete_video(
                 description='Получить ID можно по запросу информации о видео.',
                 alias='id'
             )
-        ] = None,
+        ],
 
         session: AsyncSession = Depends(get_async_session),
 
@@ -52,7 +52,8 @@ async def delete_video(
     name='Получить информацию о видео',
     description='''
     Предоставляет информацию об искомом видео.
-    Обычно вам нужно использовать только одно поле поиска.
+    Обычно вам нужно использовать только одно поле поиска.<br>
+    Значение кэшируется на `минуту`.
     ''',
     responses=get_get_response(VideoScheme)
 )
@@ -88,25 +89,25 @@ async def get_video(
     '/videos/download',
     name='Скачать видео',
     description='''
-    Отправляет первое видео соответствующее запросу.
+    Отправляет первое видео соответствующее запросу.<br>
+    Внимание! Значение кэшируется на `10 минут`.
     ''',
     responses=get_get_response(VideoScheme)
 )
-@cache(expire=60)
+@cache(expire=600)
 async def download_video(
-        id_: int | None = None,
-        title: str | None = None,
-        path: str | None = None,
+        path: Annotated[
+            str | None,
+            Query(
+                title='Путь',
+                description='Путь к скачиваемому видео',
+            )
+        ],
 
         session: AsyncSession = Depends(get_async_session),
 
 ) -> FileResponse:
-    obj: VideoCRUD = VideoCRUD(
-        id_=id_,
-        title=title,
-        path=path
-    )
-    videos = await obj.read(session)
+    videos: list = await VideoCRUD(path=path).read(session)
     return FileResponse(videos[0].path)
 
 
