@@ -5,6 +5,7 @@ from fastapi import HTTPException, UploadFile
 from sqlalchemy import select, or_, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from config import settings
 from src.utils import execute_all_objects
 from src.service import BaseCRUD
 from src.videos.models import Video
@@ -36,15 +37,6 @@ class VideoCRUD(BaseCRUD):
                 select(Video).
                 where(
                     or_(
-                        and_(
-                            Video.title == self.__title,
-                            Video.id == self.__id,
-                        ),
-                        and_(
-                            Video.title == self.__title,
-                            Video.id == self.__id,
-                            Video.path == self.__path,
-                        ),
                         Video.title == self.__title,
                         Video.id == self.__id,
                         Video.path == self.__path,
@@ -57,11 +49,10 @@ class VideoCRUD(BaseCRUD):
 
     async def create(self, session) -> bool:
         """Добавление видео в сессию и в static."""
-        self.__path: str = (
-            f'static/{self.__title}{int(datetime.now().timestamp())}.mp4'
-        )
+        self.__path = f'{self.__title}{int(datetime.now().timestamp())}.mp4'
         if self.__file.content_type == 'video/mp4':
-            async with aiofiles.open(f'../{self.__path}', "wb") as buffer:
+            file_path = f'{settings.STATIC_DIR}{self.__path}'
+            async with aiofiles.open(file_path, "wb") as buffer:
                 await buffer.write(await self.__file.read())
             session.add(Video(title=self.__title, path=self.__path))
             return True

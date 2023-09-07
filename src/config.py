@@ -7,6 +7,9 @@ class Settings(BaseSettings):
         super().__init__(*args, **kwargs)
         self.POSTGRES_URL: str = self.__get_postgres_dsn('async_fallback=True')
 
+    # APP
+    STATIC_DIR: str = '../static'  # относительно main
+
     # Postgres
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str

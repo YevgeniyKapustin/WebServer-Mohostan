@@ -24,7 +24,11 @@ app = FastAPI(
 # app.include_router(command_router)
 app.include_router(video_router)
 
-app.mount('/static', StaticFiles(directory='../static'), name='uploads')
+app.mount(
+    '/static',
+    StaticFiles(directory=settings.STATIC_DIR),
+    name='uploads'
+)
 
 
 app.add_middleware(

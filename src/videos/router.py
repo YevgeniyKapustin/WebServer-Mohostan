@@ -5,6 +5,7 @@ from fastapi_cache.decorator import cache
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import JSONResponse, FileResponse
 
+from config import settings
 from src.constants import (
     get_get_response, get_create_response, get_update_response,
     get_delete_response
@@ -89,7 +90,7 @@ async def get_video(
 
 
 @router.get(
-    '/videos/download/{path}',
+    '/videos/download/{path:path}',
     name='Скачать видео',
     description='''
     Отправляет первое видео соответствующее запросу.<br>
@@ -99,20 +100,13 @@ async def get_video(
 )
 @cache(expire=600)
 async def download_video(
-        path: Annotated[
-            str,
-            Path(
-                title='Путь',
-                description='Путь к скачиваемому видео. '
-                'Получить можно по запросу информации о видео.',
-            )
-        ],
+        path: str,
 
         session: AsyncSession = Depends(get_async_session),
 
 ) -> FileResponse:
     videos: list = await VideoCRUD(path=path).read(session)
-    return FileResponse(videos[0].path)
+    return FileResponse(f'{settings.STATIC_DIR}/{videos[0].path}')
 
 
 @router.post(
