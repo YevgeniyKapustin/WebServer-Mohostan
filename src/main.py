@@ -20,8 +20,8 @@ app = FastAPI(
         'defaultModelsExpandDepth': -1
     },
 )
-app.include_router(users_router)
-app.include_router(command_router)
+# app.include_router(users_router)
+# app.include_router(command_router)
 app.include_router(video_router)
 
 app.mount('/static', StaticFiles(directory='../static'), name='uploads')
