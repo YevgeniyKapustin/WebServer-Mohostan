@@ -22,6 +22,31 @@ router = APIRouter(
 )
 
 
+@router.delete(
+    '/videos/',
+    name='Удалить видео',
+    description='''
+    Удаляет видео и данные о нем.
+    ''',
+    responses=get_delete_response()
+)
+async def delete_video(
+        id_: Annotated[
+            int | None,
+            Query(
+                title='ID видео',
+                description='Получить ID можно по запросу информации о видео.',
+                alias='id'
+            )
+        ] = None,
+
+        session: AsyncSession = Depends(get_async_session),
+
+) -> JSONResponse:
+    obj: VideoCRUD = VideoCRUD(id_)
+    return await delete_object(obj, session)
+
+
 @router.get(
     '/videos',
     name='Получить информацию о видео',
@@ -122,19 +147,3 @@ async def update_command(
     data_for_update = (new_video.dict())
 
     return await update_object(original_obj, new_obj, data_for_update, session)
-
-
-@router.delete(
-    '/videos/',
-    name='Удалить видео',
-    responses=get_delete_response()
-)
-async def delete_type(
-        id_: int,
-
-        session: AsyncSession = Depends(get_async_session),
-
-) -> JSONResponse:
-    obj = VideoCRUD(id_)
-    return await delete_object(obj, session)
-
