@@ -31,26 +31,28 @@ class VideoCRUD(BaseCRUD):
 
     async def read(self, session: AsyncSession) -> list:
         """Чтение видео из базы данных."""
-        query = (
-            select(Video).
-            where(
-                or_(
-                    and_(
-                        Video.title == self.__title,
-                        Video.id == self.__id,
-                    ),
-                    and_(
+        if self.__id or self.__title or self.__path:
+            query = (
+                select(Video).
+                where(
+                    or_(
+                        and_(
+                            Video.title == self.__title,
+                            Video.id == self.__id,
+                        ),
+                        and_(
+                            Video.title == self.__title,
+                            Video.id == self.__id,
+                            Video.path == self.__path,
+                        ),
                         Video.title == self.__title,
                         Video.id == self.__id,
                         Video.path == self.__path,
-                    ),
-                    Video.title == self.__title,
-                    Video.id == self.__id,
-                    Video.path == self.__path,
-                    Video.id
+                    )
                 )
             )
-        )
+        else:
+            query = (select(Video))
         return await execute_all_objects(session, query)
 
     async def create(self, session) -> bool:
