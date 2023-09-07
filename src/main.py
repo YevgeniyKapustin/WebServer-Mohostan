@@ -15,6 +15,10 @@ from src.videos.router import router as video_router
 app = FastAPI(
     title='Мохостан',
     version='1.0',
+    swagger_ui_parameters={
+        "operationsSorter": "method",
+        "defaultModelsExpandDepth": -1
+    },
 )
 app.include_router(users_router)
 app.include_router(command_router)

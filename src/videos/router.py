@@ -17,13 +17,13 @@ from src.videos.schemas import VideoScheme, VideoCreateScheme
 from src.videos.services import VideoCRUD
 
 router = APIRouter(
-    prefix='/api/v1/videos',
+    prefix='/api/v1',
     tags=['Видео'],
 )
 
 
 @router.get(
-    '/',
+    '/videos',
     name='Получить информацию о видео',
     description='''
     Предоставляет информацию об искомом видео.
@@ -59,8 +59,34 @@ async def get_video(
     return await get_objects(obj, VideoScheme, session)
 
 
+@router.get(
+    '/videos/download',
+    name='Скачать видео',
+    description='''
+    Отправляет первое видео соответствующее запросу.
+    ''',
+    responses=get_get_response(VideoScheme)
+)
+@cache(expire=60)
+async def download_video(
+        id_: int | None = None,
+        title: str | None = None,
+        path: str | None = None,
+
+        session: AsyncSession = Depends(get_async_session),
+
+) -> FileResponse:
+    obj: VideoCRUD = VideoCRUD(
+        id_=id_,
+        title=title,
+        path=path
+    )
+    videos = await obj.read(session)
+    return FileResponse(videos[0].path)
+
+
 @router.post(
-    '/',
+    '/videos',
     name='Загрузить видео',
     responses=get_create_response()
 )
@@ -78,7 +104,7 @@ async def create_video(
 
 
 @router.put(
-    '/{id_}',
+    '/videos/{id_}',
     name='Изменяет команду',
     responses=get_update_response()
 )
@@ -99,7 +125,7 @@ async def update_command(
 
 
 @router.delete(
-    '/',
+    '/videos/',
     name='Удаляет видео',
     responses=get_delete_response()
 )
@@ -111,3 +137,4 @@ async def delete_type(
 ) -> JSONResponse:
     obj = VideoCRUD(id_)
     return await delete_object(obj, session)
+
