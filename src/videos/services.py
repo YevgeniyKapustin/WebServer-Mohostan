@@ -6,7 +6,7 @@ from fastapi import HTTPException, UploadFile
 from sqlalchemy import select, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from config import settings
+from src.config import settings
 from src.utils import execute_all_objects
 from src.service import BaseCRUD
 from src.videos.models import Video
