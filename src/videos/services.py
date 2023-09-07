@@ -1,8 +1,9 @@
+import os
 from datetime import datetime
 
 import aiofiles
 from fastapi import HTTPException, UploadFile
-from sqlalchemy import select, or_, and_
+from sqlalchemy import select, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from config import settings
@@ -51,7 +52,7 @@ class VideoCRUD(BaseCRUD):
         """Добавление видео в сессию и в static."""
         self.__path = f'{self.__title}{int(datetime.now().timestamp())}.mp4'
         if self.__file.content_type == 'video/mp4':
-            file_path = f'{settings.STATIC_DIR}{self.__path}'
+            file_path = f'{settings.STATIC_DIR}/{self.__path}'
             async with aiofiles.open(file_path, "wb") as buffer:
                 await buffer.write(await self.__file.read())
             session.add(Video(title=self.__title, path=self.__path))
@@ -60,7 +61,7 @@ class VideoCRUD(BaseCRUD):
             raise HTTPException(status_code=418, detail="Файл должен быть mp4")
 
     async def update(self, new_obj: dict, session: AsyncSession) -> bool:
-        """Обновление видео в базы данных."""
+        """Обновление видео в сессии."""
         self.__title = new_obj.get('title')
 
         obj = (await self.read(session))
@@ -72,6 +73,8 @@ class VideoCRUD(BaseCRUD):
         return False
 
     async def delete(self, session: AsyncSession) -> bool:
-        """Удаление видео из базы данных."""
-        [await session.delete(obj) for obj in await self.read(session)]
+        """Удаление видео из сессии."""
+        objs: list = await self.read(session)
+        await session.delete(objs[0])
+        os.remove(f'{settings.STATIC_DIR}/{objs[0].path}')
         return True
