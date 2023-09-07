@@ -105,7 +105,7 @@ async def create_video(
 
 @router.put(
     '/videos/{id_}',
-    name='Изменяет команду',
+    name='Переименовать видео',
     responses=get_update_response()
 )
 async def update_command(
@@ -126,7 +126,7 @@ async def update_command(
 
 @router.delete(
     '/videos/',
-    name='Удаляет видео',
+    name='Удалить видео',
     responses=get_delete_response()
 )
 async def delete_type(
