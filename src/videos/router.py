@@ -112,6 +112,9 @@ async def download_video(
 @router.post(
     '/videos',
     name='Загрузить видео',
+    description='''
+    Загружает видео на сервер.
+    ''',
     responses=get_create_response()
 )
 async def create_video(
@@ -140,21 +143,30 @@ async def create_video(
 
 
 @router.put(
-    '/videos/{id_}',
+    '/videos/{id}',
     name='Переименовать видео',
+    description='''
+    Меняет название видео.<br>
+    Эта операция не меняет путь!
+    ''',
     responses=get_update_response()
 )
 async def update_command(
-        id_: int,
+        id_: Annotated[
+            int | None,
+            Path(
+                title='ID видео',
+                alias='id',
+                ge=1
+            )
+        ],
         new_video: VideoCreateScheme,
 
         session: AsyncSession = Depends(get_async_session),
 
 ) -> JSONResponse:
     original_obj = VideoCRUD(id_=id_)
-    new_obj = VideoCRUD(
-        title=new_video.title,
-    )
-    data_for_update = (new_video.dict())
+    new_obj = VideoCRUD(title=new_video.title)
+    data_for_update = new_video.dict()
 
     return await update_object(original_obj, new_obj, data_for_update, session)

@@ -81,15 +81,15 @@ async def update_object(
 
         if not new_obj_orm:
 
-            if original_obj_orm != new_obj_orm:
-                await original_obj.update(data_for_update, session)
-                await session.commit()
-                return OkJSONResponse
-
-            else:
+            if original_obj_orm == new_obj_orm:
                 await original_obj.create(session)
                 await session.commit()
                 return CreateJSONResponse
+
+            else:
+                await original_obj.update(data_for_update, session)
+                await session.commit()
+                return OkJSONResponse
         else:
             return BadRequestJSONResponse
     else:

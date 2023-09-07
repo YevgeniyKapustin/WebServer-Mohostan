@@ -64,17 +64,20 @@ class VideoCRUD(BaseCRUD):
         """Обновление видео в сессии."""
         self.__title = new_obj.get('title')
 
-        obj = (await self.read(session))
-        if obj:
-            obj.type = self.__title,
+        objs: list = await self.read(session)
+        first_obj = objs[0]
 
-            session.add(obj)
+        if first_obj:
+            first_obj.title = self.__title
+            session.add(first_obj)
             return True
+
         return False
 
     async def delete(self, session: AsyncSession) -> bool:
         """Удаление видео из сессии."""
         objs: list = await self.read(session)
-        await session.delete(objs[0])
-        os.remove(f'{settings.STATIC_DIR}/{objs[0].path}')
+        first_obj = objs[0]
+        await session.delete(first_obj)
+        os.remove(f'{settings.STATIC_DIR}/{first_obj.path}')
         return True
