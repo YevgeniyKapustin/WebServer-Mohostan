@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, UploadFile, Query, Path, Body
+from fastapi import APIRouter, Depends, UploadFile, Query, Path, Body, File
 from fastapi_cache.decorator import cache
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import JSONResponse, FileResponse
@@ -121,15 +121,27 @@ async def download_video(
     responses=get_create_response()
 )
 async def create_video(
-        title: str,
-        file: UploadFile,
+        title: Annotated[
+            str,
+            Body(
+                title='Название видео',
+                description='Название поможет вам найти свое видео.',
+                alias='name',
+                min_length=3,
+                max_length=50
+            )
+        ],
+        file: Annotated[
+            UploadFile,
+            File(
+                title='mp4 видео',
+            )
+        ],
 
         session: AsyncSession = Depends(get_async_session),
+
 ) -> JSONResponse:
-    obj: VideoCRUD = VideoCRUD(
-        title=title,
-        file=file,
-    )
+    obj: VideoCRUD = VideoCRUD(title=title, file=file)
     return await create_object(obj, session)
 
 

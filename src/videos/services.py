@@ -11,7 +11,7 @@ from src.videos.models import Video
 
 
 class VideoCRUD(BaseCRUD):
-    """Класс описывающий поведение команд."""
+    """Класс описывающий поведение видео."""
     __id: int | None
     __title: str | None
     __file: UploadFile | None
@@ -30,7 +30,7 @@ class VideoCRUD(BaseCRUD):
         self.__path: str = path
 
     async def read(self, session: AsyncSession) -> list:
-        """Чтение объекта из базы данных."""
+        """Чтение видео из базы данных."""
         query = (
             select(Video).
             where(
@@ -47,29 +47,25 @@ class VideoCRUD(BaseCRUD):
                     Video.title == self.__title,
                     Video.id == self.__id,
                     Video.path == self.__path,
+                    Video.id
                 )
             )
         )
         return await execute_all_objects(session, query)
 
     async def create(self, session) -> bool:
-        """Создание объекта в базе данных."""
+        """Добавление видео в сессию и в static."""
         self.__path = f'../static/{self.__title}{int(datetime.now().timestamp())}.mp4'
         if self.__file.content_type == 'video/mp4':
             async with aiofiles.open(self.__path, "wb") as buffer:
                 await buffer.write(await self.__file.read())
-            session.add(
-                    Video(
-                        title=self.__title,
-                        path=self.__path
-                    )
-                )
+            session.add(Video(title=self.__title, path=self.__path))
             return True
         else:
             raise HTTPException(status_code=418, detail="Файл должен быть mp4")
 
     async def update(self, new_obj: dict, session: AsyncSession) -> bool:
-        """Обновление объекта в базы данных."""
+        """Обновление видео в базы данных."""
         self.__title = new_obj.get('title')
 
         obj = (await self.read(session))
@@ -81,6 +77,6 @@ class VideoCRUD(BaseCRUD):
         return False
 
     async def delete(self, session: AsyncSession) -> bool:
-        """Удаление объекта из базы данных."""
+        """Удаление видео из базы данных."""
         [await session.delete(obj) for obj in await self.read(session)]
         return True
