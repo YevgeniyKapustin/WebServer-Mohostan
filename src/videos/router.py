@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, UploadFile, Query
+from fastapi import APIRouter, Depends, UploadFile, Query, Path, Body
 from fastapi_cache.decorator import cache
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import JSONResponse, FileResponse
@@ -23,7 +23,7 @@ router = APIRouter(
 
 
 @router.delete(
-    '/videos/',
+    '/videos/{id}',
     name='Удалить видео',
     description='''
     Удаляет видео и данные о нем.
@@ -32,11 +32,12 @@ router = APIRouter(
 )
 async def delete_video(
         id_: Annotated[
-            int | None,
-            Query(
+            int,
+            Path(
                 title='ID видео',
                 description='Получить ID можно по запросу информации о видео.',
-                alias='id'
+                alias='id',
+                ge=1
             )
         ],
 
@@ -51,8 +52,9 @@ async def delete_video(
     '/videos',
     name='Получить информацию о видео',
     description='''
-    Предоставляет информацию об искомом видео.
+    Предоставляет информацию об искомом видео.<br>
     Обычно вам нужно использовать только одно поле поиска.<br>
+    Если не использовать поля поиска будут возвращены все видео.<br>
     Значение кэшируется на `минуту`.
     ''',
     responses=get_get_response(VideoScheme)
@@ -64,7 +66,8 @@ async def get_video(
             Query(
                 title='ID видео',
                 description='Для поиска по ID используйте это поле',
-                alias='id'
+                alias='id',
+                ge=1
             )
         ] = None,
         title: Annotated[
@@ -86,7 +89,7 @@ async def get_video(
 
 
 @router.get(
-    '/videos/download',
+    '/videos/download/{path}',
     name='Скачать видео',
     description='''
     Отправляет первое видео соответствующее запросу.<br>
@@ -97,10 +100,11 @@ async def get_video(
 @cache(expire=600)
 async def download_video(
         path: Annotated[
-            str | None,
-            Query(
+            str,
+            Path(
                 title='Путь',
-                description='Путь к скачиваемому видео',
+                description='Путь к скачиваемому видео. '
+                'Получить можно по запросу информации о видео.',
             )
         ],
 
