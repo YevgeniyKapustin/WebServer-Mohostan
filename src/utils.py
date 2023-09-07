@@ -1,3 +1,5 @@
+from typing import Type
+
 from pydantic import BaseModel
 from sqlalchemy import Select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -28,7 +30,7 @@ async def get_single_object(
 
 async def get_objects(
         model: BaseCRUD,
-        scheme: BaseModel,
+        scheme: Type[BaseModel],
         session: AsyncSession
 
 ) -> JSONResponse:

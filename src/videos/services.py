@@ -2,7 +2,7 @@ from datetime import datetime
 
 import aiofiles
 from fastapi import HTTPException, UploadFile
-from sqlalchemy import select
+from sqlalchemy import select, or_, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.utils import execute_all_objects
@@ -27,57 +27,34 @@ class VideoCRUD(BaseCRUD):
         self.__id: int = id_
         self.__title: str = title
         self.__file: UploadFile = file
-        self.__path = path
+        self.__path: str = path
 
     async def read(self, session: AsyncSession) -> list[object]:
         """Чтение объекта из базы данных."""
-        if self.__title and self.__id:
-            query = (
-                select(Video).
-                where(
-                    Video.title == self.__title,
-                    Video.id == self.__id,
-                )
-            )
-        elif self.__title and self.__id and self.__path:
-            query = (
-                select(Video).
-                where(
+        query = (
+            select(Video).
+            where(
+                or_(
+                    and_(
+                        Video.title == self.__title,
+                        Video.id == self.__id,
+                    ),
+                    and_(
+                        Video.title == self.__title,
+                        Video.id == self.__id,
+                        Video.path == self.__path,
+                    ),
                     Video.title == self.__title,
                     Video.id == self.__id,
                     Video.path == self.__path,
                 )
             )
-        elif self.__title:
-            query = (
-                select(Video).
-                where(
-                    Video.title == self.__title,
-                )
-            )
-        elif self.__id:
-            query = (
-                select(Video).
-                where(
-                    Video.id == self.__id,
-                )
-            )
-        elif self.__path:
-            query = (
-                select(Video).
-                where(
-                    Video.path == self.__path,
-                )
-            )
-        else:
-            query = (
-                select(Video)
-            )
+        )
         return await execute_all_objects(session, query)
 
     async def create(self, session) -> bool:
         """Создание объекта в базе данных."""
-        self.__path = f'static/{self.__title}{int(datetime.now().timestamp())}.mp4'
+        self.__path = f'../static/{self.__title}{int(datetime.now().timestamp())}.mp4'
         if self.__file.content_type == 'video/mp4':
             async with aiofiles.open(self.__path, "wb") as buffer:
                 await buffer.write(await self.__file.read())

@@ -15,7 +15,7 @@ from src.schemas import (
 def get_get_response(scheme):
     return {
         HTTP_200_OK: {
-            'model': scheme,
+            'model': list[scheme],
             'description': 'Объект получен',
         },
         HTTP_404_NOT_FOUND: {

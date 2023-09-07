@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, UploadFile
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, UploadFile, Query
 from fastapi_cache.decorator import cache
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import JSONResponse, FileResponse
@@ -8,8 +10,6 @@ from src.constants import (
     get_delete_response
 )
 from src.database import get_async_session
-from src.commands.schemas import CommandScheme, CommandCreateScheme
-from src.commands.services import CommandCRUD
 from src.utils import (
     update_object, delete_object, create_object, get_objects
 )
@@ -24,51 +24,39 @@ router = APIRouter(
 
 @router.get(
     '/',
-    name='Получить видео',
+    name='Получить информацию о видео',
     description='''
-    Предоставляет видео.
+    Предоставляет информацию об искомом видео.
+    Обычно вам нужно использовать только одно поле поиска.
     ''',
     responses=get_get_response(VideoScheme)
 )
 @cache(expire=60)
 async def get_video(
-        id_: int | None = None,
-        title: str | None = None,
+        id_: Annotated[
+            int | None,
+            Query(
+                title='ID видео',
+                description='Для поиска по ID используйте это поле',
+                alias='id'
+            )
+        ] = None,
+        title: Annotated[
+            str | None,
+            Query(
+                title='Название видео',
+                description='Для поиска по названию используйте это поле',
+                alias='name',
+                min_length=3,
+                max_length=50
+            )
+        ] = None,
 
         session: AsyncSession = Depends(get_async_session),
 
 ) -> JSONResponse:
-    obj: VideoCRUD = VideoCRUD(
-        id_=id_,
-        title=title,
-    )
+    obj: VideoCRUD = VideoCRUD(id_=id_, title=title)
     return await get_objects(obj, VideoScheme, session)
-
-
-@router.get(
-    '/download',
-    name='Скачать видео',
-    description='''
-    Отправляет первое видео соответствующее запросу.
-    ''',
-    responses=get_get_response(VideoScheme)
-)
-@cache(expire=60)
-async def download_video(
-        id_: int | None = None,
-        title: str | None = None,
-        path: str | None = None,
-
-        session: AsyncSession = Depends(get_async_session),
-
-) -> FileResponse:
-    obj: VideoCRUD = VideoCRUD(
-        id_=id_,
-        title=title,
-        path=path
-    )
-    videos = await obj.read(session)
-    return FileResponse(videos[0].path)
 
 
 @router.post(
