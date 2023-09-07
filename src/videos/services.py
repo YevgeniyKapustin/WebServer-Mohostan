@@ -58,7 +58,7 @@ class VideoCRUD(BaseCRUD):
             session.add(Video(title=self.__title, path=self.__path))
             return True
         else:
-            raise HTTPException(status_code=418, detail="Файл должен быть mp4")
+            raise HTTPException(status_code=418, detail='Файл должен быть mp4')
 
     async def update(self, new_obj: dict, session: AsyncSession) -> bool:
         """Обновление видео в сессии."""

@@ -7,8 +7,8 @@ from starlette.responses import JSONResponse, FileResponse
 
 from config import settings
 from src.constants import (
-    get_get_response, get_create_response, get_update_response,
-    get_delete_response
+    get_get_response, get_update_response, get_delete_response,
+    get_video_create_response
 )
 from src.database import get_async_session
 from src.utils import (
@@ -96,7 +96,7 @@ async def get_video(
     Отправляет первое видео соответствующее запросу.<br>
     Внимание! Значение кэшируется на `10 минут`.
     ''',
-    responses=get_get_response(VideoScheme)
+    response_class=FileResponse
 )
 @cache(expire=600)
 async def download_video(
@@ -115,7 +115,7 @@ async def download_video(
     description='''
     Загружает видео на сервер.
     ''',
-    responses=get_create_response()
+    responses=get_video_create_response()
 )
 async def create_video(
         title: Annotated[

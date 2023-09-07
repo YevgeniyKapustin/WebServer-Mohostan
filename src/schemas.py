@@ -35,3 +35,8 @@ class UnpassableEntityScheme(BaseModel):
     """Схема 422 UnpassableEntity."""
     message: str = 'UnpassableEntity'
     description: str = 'Ошибка валидации'
+
+
+class HTTPExceptionScheme(BaseModel):
+    """Схема для HTTPException."""
+    detail: str = None
