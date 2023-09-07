@@ -57,9 +57,11 @@ class VideoCRUD(BaseCRUD):
 
     async def create(self, session) -> bool:
         """Добавление видео в сессию и в static."""
-        self.__path = f'../static/{self.__title}{int(datetime.now().timestamp())}.mp4'
+        self.__path: str = (
+            f'static/{self.__title}{int(datetime.now().timestamp())}.mp4'
+        )
         if self.__file.content_type == 'video/mp4':
-            async with aiofiles.open(self.__path, "wb") as buffer:
+            async with aiofiles.open(f'../{self.__path}', "wb") as buffer:
                 await buffer.write(await self.__file.read())
             session.add(Video(title=self.__title, path=self.__path))
             return True
