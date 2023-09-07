@@ -5,7 +5,7 @@ from fastapi_cache.decorator import cache
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import JSONResponse, FileResponse
 
-from config import settings
+from src.config import settings
 from src.constants import (
     get_get_response, get_update_response, get_delete_response,
     get_video_create_response
