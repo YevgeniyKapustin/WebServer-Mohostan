@@ -5,6 +5,8 @@ services:
     image: postgres:15
     env_file:
       - .env
+    container_name:
+      mohostan_pg
     volumes:
       - ./WebServer-Mohostan/pgdata:/var/lib/postgresql/data
     ports:
