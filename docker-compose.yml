@@ -5,10 +5,12 @@ services:
     image: postgres:15
     env_file:
       - .env
+    container_name:
+      mohostan_pg
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - ./pgdata:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - '5432:5432'
 
   app:
     build:
@@ -22,8 +24,4 @@ services:
     ports:
       - '8000:8000'
     volumes:
-      - static:/app/static
-
-volumes:
-  pgdata:
-  static:
+      - ./static:/app/static
