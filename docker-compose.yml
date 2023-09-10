@@ -6,9 +6,9 @@ services:
     env_file:
       - .env
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - ./WebServer-Mohostan/pgdata:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - '5432:5432'
 
   app:
     build:
@@ -22,7 +22,7 @@ services:
     ports:
       - '8000:8000'
     volumes:
-      - static:/app/static
+      - ./WebServer-Mohostan/static:/app/static
 
 volumes:
   pgdata:
