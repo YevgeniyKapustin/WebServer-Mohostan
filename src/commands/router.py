@@ -2,6 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Path, Query
 from fastapi_cache.decorator import cache
+from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import JSONResponse
 
@@ -87,7 +88,14 @@ async def create_command(
     responses=get_update_response()
 )
 async def update_command(
-        id_: int,
+        id_: Annotated[
+            int,
+            Path(
+                title='ID команды',
+                alias='id',
+                ge=1
+            )
+        ],
         new_command: CommandCreateScheme,
 
         session: AsyncSession = Depends(get_async_session),
@@ -99,8 +107,8 @@ async def update_command(
         request=new_command.request,
         response=new_command.response,
     )
-    data_for_update = (new_command.dict())
-
+    data_for_update = new_command.dict()
+    logger.info(f'Данные для обновления: {data_for_update}')
     return await update_object(original_obj, new_obj, data_for_update, session)
 
 

@@ -72,12 +72,11 @@ class CommandCRUD(BaseCRUD):
         self.__request = new_obj.get('request')
         self.__response = new_obj.get('response')
         self.__type = new_obj.get('type')
-
-        obj = (await self.read(session))
-        if obj:
-            obj.type = self.__type,
-            obj.request = self.__request,
-            obj.response = self.__response,
+        if (len(await self.read(session)) >= 1
+                and (obj := (await self.read(session))[0])):
+            obj.type = self.__type
+            obj.request = self.__request
+            obj.response = self.__response
 
             session.add(obj)
             return True
