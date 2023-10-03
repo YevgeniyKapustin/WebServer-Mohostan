@@ -17,13 +17,13 @@ from src.utils import (
 )
 
 router = APIRouter(
-    prefix='/api/v1/',
+    prefix='/api/v1',
     tags=['Команды'],
 )
 
 
 @router.get(
-    'commands',
+    '/commands',
     name='Возвращает информацию о команде',
     description='''
     Предоставляет список команд по запросу.
@@ -63,7 +63,7 @@ async def get_command(
 
 
 @router.post(
-    'commands/',
+    '/commands',
     name='Создает команду',
     responses=get_create_response()
 )
@@ -82,7 +82,7 @@ async def create_command(
 
 
 @router.put(
-    'commands/{id}',
+    '/commands/{id}',
     name='Изменяет команду',
     responses=get_update_response()
 )
@@ -105,7 +105,7 @@ async def update_command(
 
 
 @router.delete(
-    'commands/',
+    '/commands',
     name='Удаляет команду',
     responses=get_delete_response()
 )
