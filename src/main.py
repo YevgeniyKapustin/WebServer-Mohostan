@@ -21,7 +21,7 @@ app = FastAPI(
     },
 )
 # app.include_router(users_router)
-# app.include_router(command_router)
+app.include_router(command_router)
 app.include_router(video_router)
 
 app.mount(

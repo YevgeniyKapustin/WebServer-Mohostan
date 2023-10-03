@@ -1,5 +1,5 @@
 from loguru import logger
-from sqlalchemy import select
+from sqlalchemy import select, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.utils import execute_all_objects
@@ -9,10 +9,7 @@ from src.commands.models import Command
 
 class CommandCRUD(BaseCRUD):
     """Класс описывающий поведение команд."""
-    __id: int | None
-    __type: str | None
-    __request: str | None
-    __response: str | None
+    __slots__ = ('__id', '__type', '__request', '__response', '__is_inline')
 
     def __init__(
             self,
@@ -20,11 +17,13 @@ class CommandCRUD(BaseCRUD):
             type_: str = None,
             request: str = None,
             response: str = None,
+            is_inline: bool = False
     ):
         self.__id: int = id_
         self.__type: str = type_
         self.__request: str = request
         self.__response: str = response
+        self.__is_inline: bool = is_inline
 
     async def create(self, session) -> bool:
         """Создание объекта в базе данных."""
@@ -49,40 +48,23 @@ class CommandCRUD(BaseCRUD):
 
     async def read(self, session: AsyncSession) -> list | None:
         """Чтение объекта из базы данных."""
-        query = None
-        if self.__type and self.__request:
-            query = (
-                select(Command).
-                where(
+        query = (
+            select(Command).
+            where(
+                or_(
+                    Command.request.ilike(f'%{self.__request}%'),
+                    Command.type == self.__type,
+                    Command.id == self.__id)
+            )
+            if self.__is_inline else
+            select(Command).
+            where(
+                or_(
                     Command.request == self.__request,
                     Command.type == self.__type,
-                )
+                    Command.id == self.__id)
             )
-
-        elif self.__type:
-            query = (
-                select(Command).
-                where(
-                    Command.type == self.__type,
-                )
-            )
-
-        elif self.__request:
-            query = (
-                select(Command).
-                where(
-                    Command.request == self.__request,
-                )
-            )
-
-        elif self.__id:
-            query = (
-                select(Command).
-                where(
-                    Command.id == self.__id,
-                )
-            )
-
+        )
         return await self.__execute_commands(session, query)
 
     async def update(self, new_obj: dict, session: AsyncSession) -> bool:
@@ -110,7 +92,7 @@ class CommandCRUD(BaseCRUD):
 
     @staticmethod
     async def __execute_commands(session, query) -> list | None:
-        if query:
+        if query is not None:
             commands: list = await execute_all_objects(session, query)
             logger.info(f'Найдены команды {commands}.')
             return commands

@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, Path, Query
 from fastapi_cache.decorator import cache
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import JSONResponse
@@ -15,13 +17,13 @@ from src.utils import (
 )
 
 router = APIRouter(
-    prefix='/api/v1/commands',
+    prefix='/api/v1/',
     tags=['Команды'],
 )
 
 
 @router.get(
-    '/',
+    'commands',
     name='Возвращает информацию о команде',
     description='''
     Предоставляет список команд по запросу.
@@ -30,21 +32,38 @@ router = APIRouter(
 )
 @cache(expire=60)
 async def get_command(
-        command_type: str | None = None,
-        request_: str | None = None,
+        command_type: Annotated[
+            str | None,
+            Query(
+                title='Тип команды',
+            )
+        ] = None,
+        request_: Annotated[
+            str | None,
+            Query(
+                title='Текст команды',
+                alias='request',
+            )
+        ] = None,
+        is_inline: Annotated[
+            bool,
+            Query(
+                title='Поиск команды внутри запроса',
+            )
+        ] = False,
 
         session: AsyncSession = Depends(get_async_session),
 
 ) -> JSONResponse:
     crud: CommandCRUD = CommandCRUD(
-        type_=command_type, request=request_
+        type_=command_type, request=request_, is_inline=is_inline
     )
 
     return await get_objects(crud, CommandScheme, session)
 
 
 @router.post(
-    '/',
+    'commands/',
     name='Создает команду',
     responses=get_create_response()
 )
@@ -63,7 +82,7 @@ async def create_command(
 
 
 @router.put(
-    '/{id}',
+    'commands/{id}',
     name='Изменяет команду',
     responses=get_update_response()
 )
@@ -86,7 +105,7 @@ async def update_command(
 
 
 @router.delete(
-    '/',
+    'commands/',
     name='Удаляет команду',
     responses=get_delete_response()
 )
