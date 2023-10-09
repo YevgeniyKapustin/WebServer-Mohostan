@@ -96,14 +96,13 @@ class CommandCRUD(BaseCRUD):
         """Удаление объекта из базы данных."""
         commands = await self.get(session)
         [await session.delete(obj) for obj in await self.get(session)]
-        logger.info(f'Удалены команды {commands}.')
+        logger.info(f'Удалены команды {commands}')
         return True
 
     @staticmethod
     async def __execute_commands(session, query) -> list | None:
-        if query is not None:
-            commands: list = await execute_all_objects(session, query)
-            logger.info(f'Найдены команды {commands}.')
+        if commands := await execute_all_objects(session, query):
+            logger.info(f'Найдены команды {[i.request for i in commands]}.')
             return commands
-        logger.info(f'Не удалось найти подходящую команду.')
+        logger.info(f'Не удалось найти подходящую команду')
         return None
