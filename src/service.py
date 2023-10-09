@@ -10,8 +10,12 @@ class BaseCRUD(ABC):
         """Создание объекта в базе данных."""
 
     @abstractmethod
-    async def read(self, session: AsyncSession) -> list[object]:
+    async def get(self, session: AsyncSession) -> list[object]:
         """Чтение объекта из базы данных."""
+
+    async def get_same(self, session: AsyncSession) -> list[object]:
+        """Чтение такого же объекта из базы данных."""
+        return await self.get(session)
 
     @abstractmethod
     async def update(

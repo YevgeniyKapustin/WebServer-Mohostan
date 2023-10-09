@@ -1,5 +1,5 @@
 from loguru import logger
-from sqlalchemy import select, or_
+from sqlalchemy import select, or_, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.utils import execute_all_objects
@@ -46,7 +46,15 @@ class CommandCRUD(BaseCRUD):
             ''')
         return False
 
-    async def read(self, session: AsyncSession) -> list | None:
+    async def get_same(self, session: AsyncSession) -> list | None:
+        query = (
+            select(Command).where(Command.request.ilike(f'%{self.__request}%'))
+            if self.__is_inline else
+            select(Command).where(Command.request == self.__request)
+        )
+        return await self.__execute_commands(session, query)
+
+    async def get(self, session: AsyncSession) -> list | None:
         """Чтение объекта из базы данных."""
         query = (
             select(Command).
@@ -54,7 +62,8 @@ class CommandCRUD(BaseCRUD):
                 or_(
                     Command.request.ilike(f'%{self.__request}%'),
                     Command.type == self.__type,
-                    Command.id == self.__id)
+                    Command.id == self.__id
+                )
             )
             if self.__is_inline else
             select(Command).
@@ -62,7 +71,8 @@ class CommandCRUD(BaseCRUD):
                 or_(
                     Command.request == self.__request,
                     Command.type == self.__type,
-                    Command.id == self.__id)
+                    Command.id == self.__id
+                )
             )
         )
         return await self.__execute_commands(session, query)
@@ -72,8 +82,8 @@ class CommandCRUD(BaseCRUD):
         self.__request = new_obj.get('request')
         self.__response = new_obj.get('response')
         self.__type = new_obj.get('type')
-        if (len(await self.read(session)) >= 1
-                and (obj := (await self.read(session))[0])):
+        objs = await self.get(session)
+        if len(objs) >= 1 and (obj := objs[0]):
             obj.type = self.__type
             obj.request = self.__request
             obj.response = self.__response
@@ -84,8 +94,8 @@ class CommandCRUD(BaseCRUD):
 
     async def delete(self, session: AsyncSession) -> bool:
         """Удаление объекта из базы данных."""
-        commands = await self.read(session)
-        [await session.delete(obj) for obj in await self.read(session)]
+        commands = await self.get(session)
+        [await session.delete(obj) for obj in await self.get(session)]
         logger.info(f'Удалены команды {commands}.')
         return True
 

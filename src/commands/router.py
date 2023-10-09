@@ -37,19 +37,22 @@ async def get_command(
             str | None,
             Query(
                 title='Тип команды',
+                description='Искать по типу команды'
             )
         ] = None,
         request_: Annotated[
             str | None,
             Query(
                 title='Текст команды',
+                description='Искать по запросу команды',
                 alias='request',
             )
         ] = None,
         is_inline: Annotated[
             bool,
             Query(
-                title='Поиск команды внутри запроса',
+                title='Внутристрочный поиск',
+                description='Искать ли внутристрочно?',
             )
         ] = False,
 
@@ -57,7 +60,9 @@ async def get_command(
 
 ) -> JSONResponse:
     crud: CommandCRUD = CommandCRUD(
-        type_=command_type, request=request_, is_inline=is_inline
+        type_=command_type,
+        request=request_,
+        is_inline=is_inline
     )
 
     return await get_objects(crud, CommandScheme, session)

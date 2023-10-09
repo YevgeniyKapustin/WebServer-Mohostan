@@ -105,7 +105,7 @@ async def download_video(
         session: AsyncSession = Depends(get_async_session),
 
 ) -> FileResponse:
-    videos: list = await VideoCRUD(path=path).read(session)
+    videos: list = await VideoCRUD(path=path).get(session)
     return FileResponse(f'{settings.STATIC_DIR}/{videos[0].path}')
 
 

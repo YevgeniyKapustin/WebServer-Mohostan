@@ -35,7 +35,7 @@ async def get_objects(
 
 ) -> JSONResponse:
     """Возвращает список объектов из crud объекта по схеме."""
-    if obj_list := await model.read(session):
+    if obj_list := await model.get(session):
 
         response: list[dict] = [
             {
@@ -58,7 +58,7 @@ async def create_object(
         session: AsyncSession
 ) -> JSONResponse:
     """Создает объект в базе из crud объекта."""
-    if await obj.read(session):
+    if await obj.get_same(session):
         return OkJSONResponse
 
     else:
@@ -74,8 +74,8 @@ async def update_object(
         session: AsyncSession
 ) -> JSONResponse:
     """Обновляет original_obj с помощью data_for_update."""
-    original_obj_orm = await original_obj.read(session)
-    new_obj_orm = await new_obj.read(session)
+    original_obj_orm = await original_obj.get(session)
+    new_obj_orm = await new_obj.get(session)
 
     if original_obj_orm:
 
@@ -101,7 +101,7 @@ async def delete_object(
         session: AsyncSession
 ) -> JSONResponse:
     """Удаляет объект crud из базы."""
-    if await obj.read(session):
+    if await obj.get(session):
         await obj.delete(session)
         await session.commit()
         return OkJSONResponse

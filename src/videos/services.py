@@ -31,7 +31,7 @@ class VideoCRUD(BaseCRUD):
         self.__file: UploadFile = file
         self.__path: str = path
 
-    async def read(self, session: AsyncSession) -> list:
+    async def get(self, session: AsyncSession) -> list:
         """Чтение видео из базы данных."""
         if self.__id or self.__title or self.__path:
             query = (
@@ -64,7 +64,7 @@ class VideoCRUD(BaseCRUD):
         """Обновление видео в сессии."""
         self.__title = new_obj.get('title')
 
-        objs: list = await self.read(session)
+        objs: list = await self.get(session)
         first_obj = objs[0]
 
         if first_obj:
@@ -76,7 +76,7 @@ class VideoCRUD(BaseCRUD):
 
     async def delete(self, session: AsyncSession) -> bool:
         """Удаление видео из сессии."""
-        objs: list = await self.read(session)
+        objs: list = await self.get(session)
         first_obj = objs[0]
         await session.delete(first_obj)
         os.remove(f'{settings.STATIC_DIR}/{first_obj.path}')
