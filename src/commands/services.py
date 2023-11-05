@@ -56,25 +56,28 @@ class CommandCRUD(BaseCRUD):
 
     async def get(self, session: AsyncSession) -> list | None:
         """Чтение объекта из базы данных."""
-        query = (
-            select(Command).
-            where(
-                or_(
-                    Command.request.ilike(f'%{self.__request}%'),
-                    Command.type == self.__type,
-                    Command.id == self.__id
+        if self.__type or self.__id or self.__request or self.__response:
+            query = (
+                select(Command).
+                where(
+                    or_(
+                        Command.request.ilike(f'%{self.__request}%'),
+                        Command.type == self.__type,
+                        Command.id == self.__id
+                    )
+                )
+                if self.__is_inline else
+                select(Command).
+                where(
+                    or_(
+                        Command.request == self.__request,
+                        Command.type == self.__type,
+                        Command.id == self.__id
+                    )
                 )
             )
-            if self.__is_inline else
-            select(Command).
-            where(
-                or_(
-                    Command.request == self.__request,
-                    Command.type == self.__type,
-                    Command.id == self.__id
-                )
-            )
-        )
+        else:
+            query = (select(Command))
         return await self.__execute_commands(session, query)
 
     async def update(self, new_obj: dict, session: AsyncSession) -> bool:
